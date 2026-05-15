@@ -37,7 +37,9 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // ─── Logging ────────────────────────────────────────────────────────────────
 if (process.env.NODE_ENV !== 'production') app.use(morgan('dev'));
 
-// ─── Static Uploads ─────────────────────────────────────────────────────────
+// ─── Static Files ────────────────────────────────────────────────────────────
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname)));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ─── Routes ─────────────────────────────────────────────────────────────────
