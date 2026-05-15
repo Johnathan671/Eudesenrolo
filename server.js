@@ -50,6 +50,12 @@ app.use('/api',          require('./routes/misc'));
 // ─── Health ─────────────────────────────────────────────────────────────────
 app.get('/health', (req, res) => res.json({ status: 'ok', version: '2.0.0' }));
 
+// ─── Frontend ────────────────────────────────────────────────────────────────
+app.use(express.static(path.join(__dirname, 'public')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 // ─── 404 ────────────────────────────────────────────────────────────────────
 app.use((req, res) => res.status(404).json({ error: 'Rota não encontrada' }));
 
