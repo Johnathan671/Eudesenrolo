@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mensagens — CellMart</title><link rel="stylesheet" href="../public/css/main.css"></head>
+<body>
+<header class="header"><div class="header-inner">
+  <a href="/index.html" class="logo">📱Cell<span>Mart</span></a>
+  <nav class="header-nav">
+    <a href="/index.html"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Início</a>
+    <a href="/pages/profile.html"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>Perfil</a>
+  </nav>
+</div></header>
+
+<div style="height:calc(100vh - var(--header-h))">
+<div class="chat-layout">
+  <!-- Sidebar: conversations list -->
+  <div class="chat-sidebar">
+    <div style="padding:16px;border-bottom:1px solid var(--lighter)">
+      <h3 style="font-size:1rem">💬 Conversas</h3>
+    </div>
+    <div id="conv-list"><div style="padding:20px;text-align:center"><div class="spinner" style="margin:0 auto"></div></div></div>
+  </div>
+
+  <!-- Main: messages -->
+  <div class="chat-main">
+    <div class="chat-header" id="chat-header">
+      <div style="color:var(--mid);font-size:.9rem">Selecione uma conversa</div>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="empty-state">
+        <div class="icon">💬</div>
+        <h3>Nenhuma conversa aberta</h3>
+        <p>Selecione uma conversa ao lado ou acesse um anúncio e entre em contato com o vendedor</p>
+      </div>
+    </div>
+    <div class="chat-input-area" id="chat-input-area" style="display:none">
+      <textarea class="chat-input" id="msg-input" placeholder="Digite sua mensagem…" rows="1" onkeydown="handleMsgKey(event)"></textarea>
+      <button class="btn btn-primary" onclick="sendMsg()" style="flex-shrink:0;align-self:flex-end">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="../public/js/app.js"></script>
+<script>
+if (!Auth.isLoggedIn()) location.href = '/pages/login.html';
+const me = Auth.getUser();
+let activeConvId = null;
+let polling = null;
+
+// Load from hash
+const hashConv = location.hash.replace('#','');
+
+async function loadConversations() {
+  try {
+    const convs = await Http.get('/messages');
+    document.getElementById('conv-list').innerHTML = convs.length
+      ? convs.map(c => {
+          const other = me.id === c.buyer_id ? { name: c.seller_name, avatar: c.seller_avatar } : { name: c.buyer_name, avatar: c.buyer_avatar };
+          return `<div class="chat-item${c.id===activeConvId?' active':''}" onclick="openConv('${c.id}')" id="conv-${c.id}">
+            ${c.product_image ? `<img src="http://localhost:3001${c.product_image}" class="chat-item-img">` : '<div class="chat-item-img" style="display:flex;align-items:center;justify-content:center;font-size:1.2rem">📷</div>'}
+            <div class="chat-item-body">
+              <div class="chat-item-name">${other.name}</div>
+              <div class="chat-item-preview">${c.product_title}</div>
+              <div class="chat-item-preview" style="color:var(--mid)">${c.last_msg || 'Sem mensagens'}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+              <div class="chat-item-time">${UI.formatDate(c.last_msg_at)}</div>
+              ${c.unread_count > 0 ? `<div class="chat-item-unread">${c.unread_count}</div>` : ''}
+            </div>
+          </div>`;
+        }).join('')
+      : '<div class="empty-state" style="padding:32px 16px"><div class="icon">💬</div><h3>Sem conversas</h3><p>Acesse um anúncio e envie uma mensagem</p></div>';
+
+    if (hashConv) openConv(hashConv);
+  } catch(e) { console.error(e); }
+}
+
+async function openConv(convId) {
+  activeConvId = convId;
+  if (polling) clearInterval(polling);
+  document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
+  document.getElementById(`conv-${convId}`)?.classList.add('active');
+  document.getElementById('chat-messages').innerHTML = '<div style="display:flex;justify-content:center;padding:20px"><div class="spinner"></div></div>';
+  document.getElementById('chat-input-area').style.display = 'flex';
+
+  try {
+    const { messages, product, conv } = await Http.get(`/messages/${convId}`);
+    const other = me.id === conv.buyer_id ? { name: product.seller_name, avatar: product.seller_avatar } : { name: product.buyer_name, avatar: product.buyer_avatar };
+
+    document.getElementById('chat-header').innerHTML = `
+      <img src="${other.avatar ? 'http://localhost:3001'+other.avatar : ''}" onerror="this.style.display='none'" style="width:36px;height:36px;border-radius:50%;object-fit:cover;background:var(--light)">
+      <div>
+        <div style="font-weight:600;font-size:.9rem">${other.name}</div>
+        <a href="/pages/product.html?id=${product.id}" style="font-size:.78rem;color:var(--brand)">${product.title} · ${UI.formatPrice(product.price)}</a>
+      </div>`;
+
+    renderMessages(messages);
+    scrollBottom();
+
+    // Poll for new messages
+    polling = setInterval(async () => {
+      if (document.hidden) return;
+      try {
+        const updated = await Http.get(`/messages/${convId}`);
+        if (updated.messages.length !== messages.length) {
+          renderMessages(updated.messages);
+          scrollBottom();
+        }
+      } catch {}
+    }, 5000);
+
+    loadConversations();
+  } catch(e) { UI.toast('Erro ao abrir conversa', 'error'); }
+}
+
+function renderMessages(msgs) {
+  document.getElementById('chat-messages').innerHTML = msgs.length
+    ? msgs.map(m => {
+        const isMine = m.sender_id === me.id;
+        return `<div class="msg${isMine?' mine':''}">
+          ${!isMine ? `<div class="msg-avatar">${m.sender_avatar?`<img src="http://localhost:3001${m.sender_avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`:'👤'}</div>` : ''}
+          <div>
+            <div class="msg-bubble">${m.content.replace(/\n/g,'<br>')}</div>
+            <div class="msg-time">${UI.formatDate(m.created_at)}</div>
+          </div>
+        </div>`;
+      }).join('')
+    : '<div class="empty-state" style="padding:32px"><div class="icon">👋</div><h3>Inicie a conversa</h3></div>';
+}
+
+function scrollBottom() {
+  const el = document.getElementById('chat-messages');
+  el.scrollTop = el.scrollHeight;
+}
+
+function handleMsgKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+}
+
+async function sendMsg() {
+  if (!activeConvId) return;
+  const input = document.getElementById('msg-input');
+  const content = input.value.trim();
+  if (!content) return;
+  input.value = '';
+  try {
+    const msg = await Http.post(`/messages/${activeConvId}/send`, { content });
+    const el = document.getElementById('chat-messages');
+    el.innerHTML += `<div class="msg mine">
+      <div><div class="msg-bubble">${content.replace(/\n/g,'<br>')}</div><div class="msg-time">agora</div></div>
+    </div>`;
+    scrollBottom();
+    loadConversations();
+  } catch(e) { UI.toast(e.error || 'Erro ao enviar', 'error'); input.value = content; }
+}
+
+loadConversations();
+</script>
+</body></html>

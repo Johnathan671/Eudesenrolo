@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Perfil do Vendedor — CellMart</title><link rel="stylesheet" href="../public/css/main.css"></head>
+<body>
+<header class="header"><div class="header-inner">
+  <a href="/index.html" class="logo">📱Cell<span>Mart</span></a>
+  <nav class="header-nav">
+    <a href="/index.html"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Início</a>
+    <a href="/pages/login.html" id="nav-login"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>Entrar</a>
+    <a href="/pages/profile.html" id="nav-user" class="hidden"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg><span id="nav-user-name">Perfil</span></a>
+  </nav>
+</div></header>
+
+<div class="profile-header">
+  <div class="container">
+    <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+      <div style="width:72px;height:72px;border-radius:50%;background:var(--dark-3);display:flex;align-items:center;justify-content:center;font-size:2rem;border:3px solid var(--brand);overflow:hidden" id="avatar-wrap">👤</div>
+      <div style="flex:1">
+        <h1 id="user-name" style="color:white;font-size:1.3rem;margin-bottom:6px">…</h1>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px" id="user-badges"></div>
+        <p id="user-meta" style="color:rgba(255,255,255,.6);font-size:.85rem"></p>
+      </div>
+      <div style="display:flex;gap:24px;text-align:center">
+        <div><div id="stat-ads" style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:white">0</div><div style="font-size:.75rem;color:rgba(255,255,255,.6)">Anúncios</div></div>
+        <div><div id="stat-rep" style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:white">0.0</div><div style="font-size:.75rem;color:rgba(255,255,255,.6)">Estrelas</div></div>
+        <div><div id="stat-reviews" style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:white">0</div><div style="font-size:.75rem;color:rgba(255,255,255,.6)">Avaliações</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container page-wrap">
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('ads')">📋 Anúncios</button>
+    <button class="tab" onclick="showTab('reviews')">⭐ Avaliações</button>
+  </div>
+
+  <div id="tab-ads">
+    <div class="grid-4" id="ads-grid"><div class="product-card skeleton" style="height:200px"></div><div class="product-card skeleton" style="height:200px"></div></div>
+  </div>
+
+  <div id="tab-reviews" style="display:none">
+    <!-- Leave review -->
+    <div id="leave-review-box" class="card hidden" style="margin-bottom:24px;max-width:480px">
+      <div class="card-header"><h3>Deixar Avaliação</h3></div>
+      <div class="card-body">
+        <div class="form-group">
+          <label class="form-label">Sua nota</label>
+          <div class="stars-input" id="star-input">
+            <input type="radio" name="stars" id="s5" value="5" style="display:none"><label for="s5">★</label>
+            <input type="radio" name="stars" id="s4" value="4" style="display:none"><label for="s4">★</label>
+            <input type="radio" name="stars" id="s3" value="3" style="display:none"><label for="s3">★</label>
+            <input type="radio" name="stars" id="s2" value="2" style="display:none"><label for="s2">★</label>
+            <input type="radio" name="stars" id="s1" value="1" style="display:none"><label for="s1">★</label>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Comentário (opcional)</label>
+          <textarea id="review-comment" class="form-control" rows="3" placeholder="Conte sua experiência…"></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="submitReview()">Enviar Avaliação</button>
+      </div>
+    </div>
+    <div id="reviews-list"></div>
+  </div>
+</div>
+
+<script src="../public/js/app.js"></script>
+<script>
+const userId = new URLSearchParams(location.search).get('id');
+if (!userId) location.href = '/index.html';
+let userData = null;
+
+function showTab(t) {
+  ['ads','reviews'].forEach(id => document.getElementById(`tab-${id}`).style.display = id === t ? '' : 'none');
+  document.querySelectorAll('.tab').forEach((el,i) => el.classList.toggle('active', ['ads','reviews'][i] === t));
+  if (t === 'reviews') loadReviews();
+}
+
+async function loadUserProfile() {
+  try {
+    const { user, ads, rating } = await Http.get(`/users/${userId}/profile`);
+    userData = user;
+    document.title = `${user.name} — CellMart`;
+    if (user.avatar) document.getElementById('avatar-wrap').innerHTML = `<img src="http://localhost:3001${user.avatar}" style="width:100%;height:100%;object-fit:cover">`;
+    document.getElementById('user-name').textContent = user.name;
+    const badges = [];
+    if (user.verified) badges.push('<span class="verified-badge">✓ Verificado</span>');
+    if (user.premium)  badges.push('<span class="premium-badge">⭐ Premium</span>');
+    document.getElementById('user-badges').innerHTML = badges.join('');
+    const meta = [user.city && user.state ? `📍 ${user.city}, ${user.state}` : null, `📅 Desde ${new Date(user.created_at).toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}`].filter(Boolean);
+    document.getElementById('user-meta').textContent = meta.join(' · ');
+    document.getElementById('stat-ads').textContent     = ads.length;
+    document.getElementById('stat-rep').textContent     = rating.avg;
+    document.getElementById('stat-reviews').textContent = rating.total;
+
+    document.getElementById('ads-grid').innerHTML = ads.length
+      ? ads.map(p => UI.productCard(p)).join('')
+      : '<div class="empty-state" style="grid-column:1/-1"><div class="icon">📋</div><h3>Nenhum anúncio ativo</h3></div>';
+
+    if (Auth.isLoggedIn() && Auth.getUser()?.id !== userId) {
+      document.getElementById('leave-review-box').classList.remove('hidden');
+    }
+  } catch(e) { UI.toast('Usuário não encontrado', 'error'); setTimeout(() => location.href='/', 2000); }
+}
+
+async function loadReviews() {
+  if (document.getElementById('reviews-list').hasChildNodes()) return;
+  try {
+    const { reviews, avg, total } = await Http.get(`/reviews/${userId}`);
+    document.getElementById('reviews-list').innerHTML = reviews.length
+      ? reviews.map(r => `
+        <div class="card" style="margin-bottom:12px">
+          <div class="card-body" style="display:flex;gap:12px">
+            <div style="width:40px;height:40px;border-radius:50%;background:var(--lighter);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
+              ${r.reviewer_avatar ? `<img src="http://localhost:3001${r.reviewer_avatar}" style="width:100%;height:100%;object-fit:cover">` : '👤'}
+            </div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                <strong style="font-size:.9rem">${r.reviewer_name}</strong>
+                <span style="font-size:.75rem;color:var(--mid)">${UI.formatDate(r.created_at)}</span>
+              </div>
+              <div>${UI.stars(r.stars, false)}</div>
+              ${r.comment ? `<p style="font-size:.875rem;color:var(--dark-2);margin-top:6px">${r.comment}</p>` : ''}
+              ${r.product_title ? `<div style="font-size:.75rem;color:var(--mid);margin-top:4px">Produto: ${r.product_title}</div>` : ''}
+            </div>
+          </div>
+        </div>`).join('')
+      : '<div class="empty-state"><div class="icon">⭐</div><h3>Sem avaliações ainda</h3></div>';
+  } catch(e) { UI.toast('Erro ao carregar avaliações', 'error'); }
+}
+
+async function submitReview() {
+  if (!Auth.isLoggedIn()) { openLoginModal(); return; }
+  const stars = document.querySelector('input[name=stars]:checked')?.value;
+  if (!stars) { UI.toast('Selecione uma nota', 'warning'); return; }
+  try {
+    await Http.post('/reviews', { seller_id: userId, stars: parseInt(stars), comment: document.getElementById('review-comment').value });
+    UI.toast('Avaliação enviada! ⭐', 'success');
+    document.getElementById('leave-review-box').classList.add('hidden');
+    document.getElementById('reviews-list').innerHTML = '';
+    loadReviews();
+  } catch(e) { UI.toast(e.error || 'Erro ao enviar avaliação', 'error'); }
+}
+
+loadUserProfile();
+</script>
+</body></html>

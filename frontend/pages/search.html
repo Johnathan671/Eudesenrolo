@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Buscar — CellMart</title>
+  <link rel="stylesheet" href="../public/css/main.css">
+</head>
+<body>
+<header class="header"><div class="header-inner">
+  <a href="/index.html" class="logo">📱Cell<span>Mart</span></a>
+  <form class="search-bar" id="header-search-form" style="position:relative">
+    <input type="text" id="header-search" placeholder="Buscar produtos…" autocomplete="off">
+    <button type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button>
+    <ul class="autocomplete-list hidden" id="header-autocomplete"></ul>
+  </form>
+  <nav class="header-nav">
+    <a href="/index.html"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Início</a>
+    <a href="/pages/messages.html" class="notif-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><span class="badge hidden" id="msg-badge">0</span>Chat</a>
+    <a href="/pages/login.html" id="nav-login"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>Entrar</a>
+    <a href="/pages/profile.html" id="nav-user" class="hidden"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg><span id="nav-user-name">Perfil</span></a>
+    <a href="/pages/new-ad.html" class="btn-post-ad"><svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>Anunciar</a>
+  </nav>
+  <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+</div></header>
+
+<div class="container page-wrap">
+  <!-- Breadcrumb + result count -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1 id="search-title" style="font-size:1.3rem;margin-bottom:4px">Todos os anúncios</h1>
+      <p id="result-count" style="font-size:.85rem;color:var(--mid)">Carregando…</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <label style="font-size:.85rem;color:var(--mid)">Ordenar:</label>
+      <select id="sort-select" class="form-control" style="width:auto;padding:8px 32px 8px 10px;font-size:.85rem">
+        <option value="recent">Mais recentes</option>
+        <option value="price_asc">Menor preço</option>
+        <option value="price_desc">Maior preço</option>
+        <option value="views">Mais vistos</option>
+      </select>
+      <button class="btn btn-secondary btn-sm" id="toggle-filters-btn" style="display:none">🔽 Filtros</button>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:240px 1fr;gap:24px;align-items:start" id="search-layout">
+    <!-- FILTERS -->
+    <aside class="filter-panel" id="filters-panel">
+      <h3 style="margin-bottom:20px;font-size:1rem">Filtros</h3>
+
+      <div class="filter-section">
+        <h4>Categoria</h4>
+        <div id="cat-filters"></div>
+      </div>
+
+      <div class="filter-section">
+        <h4>Condição</h4>
+        <label class="filter-option"><input type="radio" name="condition" value=""> Todas</label>
+        <label class="filter-option"><input type="radio" name="condition" value="novo"> Novo</label>
+        <label class="filter-option"><input type="radio" name="condition" value="seminovo"> Seminovo</label>
+        <label class="filter-option"><input type="radio" name="condition" value="usado"> Usado</label>
+        <label class="filter-option"><input type="radio" name="condition" value="pecas"> Para peças</label>
+      </div>
+
+      <div class="filter-section">
+        <h4>Preço</h4>
+        <div class="price-range">
+          <input type="number" id="min-price" placeholder="Mín" min="0">
+          <span style="color:var(--mid)">—</span>
+          <input type="number" id="max-price" placeholder="Máx" min="0">
+        </div>
+        <button class="btn btn-outline btn-sm btn-full" style="margin-top:10px" onclick="applyFilters()">Aplicar</button>
+      </div>
+
+      <div class="filter-section">
+        <h4>Estado</h4>
+        <select id="state-filter" class="form-control" style="font-size:.85rem;padding:8px">
+          <option value="">Todos</option>
+        </select>
+      </div>
+
+      <div class="filter-section">
+        <h4>Apenas destaques</h4>
+        <label class="filter-option">
+          <input type="checkbox" id="featured-filter"> Anúncios em destaque
+        </label>
+      </div>
+
+      <button class="btn btn-secondary btn-sm btn-full" onclick="clearFilters()">Limpar filtros</button>
+    </aside>
+
+    <!-- RESULTS -->
+    <main>
+      <div class="grid-3" id="results-grid" style="min-height:300px">
+        <div class="product-card"><div class="product-card-img skeleton" style="padding-top:70%"></div><div class="product-card-body"><div class="skeleton" style="height:32px;border-radius:4px"></div></div></div>
+        <div class="product-card"><div class="product-card-img skeleton" style="padding-top:70%"></div><div class="product-card-body"><div class="skeleton" style="height:32px;border-radius:4px"></div></div></div>
+        <div class="product-card"><div class="product-card-img skeleton" style="padding-top:70%"></div><div class="product-card-body"><div class="skeleton" style="height:32px;border-radius:4px"></div></div></div>
+      </div>
+      <div id="pagination"></div>
+    </main>
+  </div>
+</div>
+
+<script src="../public/js/app.js"></script>
+<script>
+let currentPage = 1;
+const params = new URLSearchParams(location.search);
+
+// Responsive filter toggle
+if (window.innerWidth < 768) {
+  document.getElementById('filters-panel').style.display = 'none';
+  document.getElementById('toggle-filters-btn').style.display = '';
+  document.getElementById('search-layout').style.gridTemplateColumns = '1fr';
+  document.getElementById('toggle-filters-btn').onclick = () => {
+    const p = document.getElementById('filters-panel');
+    p.style.display = p.style.display === 'none' ? 'block' : 'none';
+  };
+}
+
+async function loadResults(page = 1) {
+  currentPage = page;
+  const q         = params.get('q') || '';
+  const category  = params.get('category') || document.querySelector('input[name=cat-filter]:checked')?.value || '';
+  const condition = document.querySelector('input[name=condition]:checked')?.value || '';
+  const minPrice  = document.getElementById('min-price').value;
+  const maxPrice  = document.getElementById('max-price').value;
+  const state     = document.getElementById('state-filter').value;
+  const featured  = document.getElementById('featured-filter').checked ? '1' : '';
+  const sort      = document.getElementById('sort-select').value;
+
+  let url = `/products?page=${page}&limit=12&sort=${sort}`;
+  if (q)        url += `&q=${encodeURIComponent(q)}`;
+  if (category) url += `&category=${encodeURIComponent(category)}`;
+  if (condition)url += `&condition=${encodeURIComponent(condition)}`;
+  if (minPrice) url += `&minPrice=${minPrice}`;
+  if (maxPrice) url += `&maxPrice=${maxPrice}`;
+  if (state)    url += `&state=${encodeURIComponent(state)}`;
+  if (featured) url += `&featured=1`;
+
+  document.getElementById('results-grid').innerHTML = UI.skeletonCards(6);
+
+  try {
+    const { products, total, pages } = await Http.get(url);
+    document.getElementById('result-count').textContent = `${total} resultado${total !== 1 ? 's' : ''} encontrado${total !== 1 ? 's' : ''}`;
+    document.getElementById('search-title').textContent = q ? `Resultados para "${q}"` : category ? `Categoria selecionada` : 'Todos os anúncios';
+    document.getElementById('results-grid').innerHTML = products.length
+      ? products.map(p => UI.productCard(p)).join('')
+      : `<div class="empty-state" style="grid-column:1/-1"><div class="icon">🔍</div><h3>Nenhum resultado</h3><p>Tente outros termos ou remova filtros</p></div>`;
+    renderPagination(document.getElementById('pagination'), page, pages, 'loadResults');
+  } catch(e) {
+    document.getElementById('results-grid').innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="icon">❌</div><h3>Erro ao buscar</h3><p>Verifique se o servidor está rodando</p></div>`;
+  }
+}
+
+function applyFilters() { loadResults(1); }
+function clearFilters() {
+  document.querySelectorAll('input[name=condition]')[0].checked = true;
+  document.getElementById('min-price').value = '';
+  document.getElementById('max-price').value = '';
+  document.getElementById('state-filter').value = '';
+  document.getElementById('featured-filter').checked = false;
+  loadResults(1);
+}
+
+async function loadFilters() {
+  const [cats, states] = await Promise.all([Http.get('/categories'), Http.get('/states')]);
+
+  document.getElementById('cat-filters').innerHTML = `<label class="filter-option"><input type="radio" name="cat-filter" value="" checked onchange="applyFilters()"> Todas</label>`
+    + cats.map(c => `<label class="filter-option"><input type="radio" name="cat-filter" value="${c.slug}" onchange="applyFilters()"> ${c.icon} ${c.name}</label>`).join('');
+
+  document.getElementById('state-filter').innerHTML = '<option value="">Todos</option>'
+    + states.map(s => `<option value="${s}"${params.get('state')===s?' selected':''}>${s}</option>`).join('');
+
+  // Pré-selecionar categoria da URL
+  if (params.get('category')) {
+    const radio = document.querySelector(`input[value="${params.get('category')}"]`);
+    if (radio) radio.checked = true;
+  }
+}
+
+document.getElementById('sort-select').onchange = () => loadResults(1);
+document.getElementById('header-search').value = params.get('q') || '';
+
+loadFilters().then(() => loadResults(1));
+</script>
+</body>
+</html>

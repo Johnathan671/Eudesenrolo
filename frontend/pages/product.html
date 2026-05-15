@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Produto — CellMart</title>
+  <link rel="stylesheet" href="../public/css/main.css">
+</head>
+<body>
+<header class="header"><div class="header-inner">
+  <a href="/index.html" class="logo">📱Cell<span>Mart</span></a>
+  <form class="search-bar" id="header-search-form" style="position:relative">
+    <input type="text" id="header-search" placeholder="Buscar produtos…" autocomplete="off">
+    <button type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button>
+    <ul class="autocomplete-list hidden" id="header-autocomplete"></ul>
+  </form>
+  <nav class="header-nav">
+    <a href="/index.html"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Início</a>
+    <a href="/pages/login.html" id="nav-login"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>Entrar</a>
+    <a href="/pages/profile.html" id="nav-user" class="hidden"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg><span id="nav-user-name">Perfil</span></a>
+    <a href="/pages/new-ad.html" class="btn-post-ad"><svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>Anunciar</a>
+  </nav>
+  <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+</div></header>
+
+<div class="container page-wrap">
+  <!-- Breadcrumb -->
+  <nav style="font-size:.85rem;color:var(--mid);margin-bottom:20px">
+    <a href="/index.html" style="color:var(--mid)">Início</a> › 
+    <span id="bread-cat">…</span> › 
+    <span id="bread-title" style="color:var(--dark)">…</span>
+  </nav>
+
+  <div style="display:grid;grid-template-columns:1fr 340px;gap:28px;align-items:start" id="product-layout">
+    <!-- LEFT: images + description -->
+    <div>
+      <!-- Carousel -->
+      <div class="carousel" id="main-carousel">
+        <div class="carousel-track" id="carousel-track"></div>
+        <button class="carousel-btn prev">‹</button>
+        <button class="carousel-btn next">›</button>
+        <div class="carousel-dots" id="carousel-dots"></div>
+        <span class="carousel-count" id="carousel-count">1/1</span>
+      </div>
+
+      <!-- Thumbnails -->
+      <div id="thumbnails" style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"></div>
+
+      <!-- Description -->
+      <div class="card" style="margin-top:24px">
+        <div class="card-header"><h3>Descrição</h3></div>
+        <div class="card-body" style="white-space:pre-wrap;font-size:.9rem;line-height:1.7;color:var(--dark-2)" id="desc-text">Carregando…</div>
+      </div>
+
+      <!-- Reviews section -->
+      <div class="card" style="margin-top:20px">
+        <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+          <h3>Avaliações do vendedor</h3>
+          <div id="seller-rating-summary"></div>
+        </div>
+        <div class="card-body" id="reviews-list"><div class="spinner" style="margin:0 auto"></div></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: product info + seller -->
+    <aside>
+      <!-- Price card -->
+      <div class="card" style="position:sticky;top:80px">
+        <div class="card-body">
+          <div id="product-badges" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"></div>
+          <h1 id="product-title" style="font-size:1.2rem;margin-bottom:10px;line-height:1.3">Carregando…</h1>
+          <div id="product-price" style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:var(--brand);margin-bottom:4px">…</div>
+          <p id="negotiable-tag" style="font-size:.82rem;color:var(--mid);margin-bottom:16px;display:none">✅ Preço negociável</p>
+          <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+            <button class="btn btn-primary btn-full" id="btn-contact" onclick="openContact()">💬 Entrar em Contato</button>
+            <button class="btn btn-outline" id="btn-fav" onclick="handleFav()" style="flex:0 0 auto;padding:10px 14px">♡</button>
+          </div>
+          <hr style="border:none;border-top:1px solid var(--lighter);margin:16px 0">
+
+          <!-- Details -->
+          <div id="product-details" style="display:flex;flex-direction:column;gap:10px;font-size:.875rem"></div>
+
+          <hr style="border:none;border-top:1px solid var(--lighter);margin:16px 0">
+
+          <!-- Seller -->
+          <div id="seller-card"></div>
+
+          <div style="margin-top:16px">
+            <button class="btn btn-secondary btn-sm" onclick="openReport()" style="font-size:.75rem;color:var(--mid)">⚑ Denunciar anúncio</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Related -->
+  <div style="margin-top:40px">
+    <div class="section-title"><h2>Relacionados</h2></div>
+    <div class="grid-4" id="related-grid"></div>
+  </div>
+</div>
+
+<!-- Contact Modal -->
+<div class="modal-overlay hidden" id="contact-modal">
+  <div class="modal">
+    <div class="modal-header"><h3>Entrar em Contato</h3><button class="modal-close" onclick="document.getElementById('contact-modal').classList.add('hidden')">×</button></div>
+    <div class="modal-body">
+      <div id="contact-product-info" style="background:var(--lighter);padding:12px;border-radius:var(--radius);margin-bottom:16px;font-size:.875rem"></div>
+      <div class="form-group">
+        <label class="form-label">Mensagem <span class="req">*</span></label>
+        <textarea id="contact-msg" class="form-control" rows="4" placeholder="Olá! Ainda está disponível?"></textarea>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="sendContact()">📨 Enviar Mensagem</button>
+    </div>
+  </div>
+</div>
+
+<!-- Report Modal -->
+<div class="modal-overlay hidden" id="report-modal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header"><h3>Denunciar Anúncio</h3><button class="modal-close" onclick="document.getElementById('report-modal').classList.add('hidden')">×</button></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Motivo</label>
+        <select id="report-reason" class="form-control">
+          <option>Produto falso ou enganoso</option>
+          <option>Preço abusivo</option>
+          <option>Conteúdo impróprio</option>
+          <option>Spam ou duplicado</option>
+          <option>Outro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Detalhes (opcional)</label>
+        <textarea id="report-details" class="form-control" rows="3" placeholder="Descreva o problema…"></textarea>
+      </div>
+      <button class="btn btn-danger btn-full" onclick="submitReport()">Enviar Denúncia</button>
+    </div>
+  </div>
+</div>
+
+<script src="../public/js/app.js"></script>
+<script>
+const productId = new URLSearchParams(location.search).get('id');
+let productData = null;
+
+if (!productId) location.href = '/index.html';
+
+// Responsive
+if (window.innerWidth < 768) {
+  document.getElementById('product-layout').style.gridTemplateColumns = '1fr';
+}
+
+async function loadProduct() {
+  try {
+    const { product, images, reviews, isFavorited, related } = await Http.get(`/products/${productId}`);
+    productData = product;
+    document.title = `${product.title} — CellMart`;
+
+    // Breadcrumb
+    document.getElementById('bread-cat').innerHTML = `<a href="/pages/search.html?category=${product.category_slug}">${product.category_icon} ${product.category_name}</a>`;
+    document.getElementById('bread-title').textContent = product.title.slice(0,40) + (product.title.length > 40 ? '…' : '');
+
+    // Carousel
+    const allImages = images.length ? images : [{ url: null }];
+    document.getElementById('carousel-track').innerHTML = allImages.map(img => `
+      <div class="carousel-slide">
+        ${img.url
+          ? `<img src="http://localhost:3001${img.url}" alt="${product.title}" style="width:100%;aspect-ratio:4/3;object-fit:cover">`
+          : `<div style="width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:var(--lighter);font-size:4rem">📷</div>`}
+      </div>`).join('');
+    document.getElementById('carousel-dots').innerHTML = allImages.map((_,i) => `<button class="carousel-dot${i===0?' active':''}"></button>`).join('');
+    document.getElementById('carousel-count').textContent = `1/${allImages.length}`;
+
+    // Thumbnails
+    if (images.length > 1) {
+      document.getElementById('thumbnails').innerHTML = images.map((img,i) => `
+        <img src="http://localhost:3001${img.url}" onclick="goToSlide(${i})"
+          style="width:60px;height:60px;object-fit:cover;border-radius:8px;border:2px solid var(--light);cursor:pointer;transition:.2s">`
+      ).join('');
+    }
+    initCarousel(document.getElementById('main-carousel'));
+
+    // Title & price
+    document.getElementById('product-title').textContent = product.title;
+    document.getElementById('product-price').textContent = UI.formatPrice(product.price);
+    if (product.price_negotiable) document.getElementById('negotiable-tag').style.display = '';
+
+    // Badges
+    const badges = [UI.conditionBadge(product.condition)];
+    if (product.featured) badges.push('<span style="background:var(--brand);color:white;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px">⭐ Destaque</span>');
+    document.getElementById('product-badges').innerHTML = badges.join('');
+
+    // Details
+    document.getElementById('product-details').innerHTML = [
+      product.city ? `<div style="display:flex;justify-content:space-between"><span style="color:var(--mid)">Localização</span><span>📍 ${product.city}${product.state?', '+product.state:''}</span></div>` : '',
+      `<div style="display:flex;justify-content:space-between"><span style="color:var(--mid)">Visualizações</span><span>👁 ${product.views}</span></div>`,
+      `<div style="display:flex;justify-content:space-between"><span style="color:var(--mid)">Publicado</span><span>${UI.formatDate(product.created_at)}</span></div>`,
+      `<div style="display:flex;justify-content:space-between"><span style="color:var(--mid)">Favoritos</span><span>❤️ ${product.favorites_count}</span></div>`,
+    ].join('');
+
+    // Description
+    document.getElementById('desc-text').textContent = product.description || 'Sem descrição.';
+
+    // Favorite btn
+    const favBtn = document.getElementById('btn-fav');
+    favBtn.textContent = isFavorited ? '❤️' : '♡';
+    favBtn.classList.toggle('active', isFavorited);
+
+    // Hide contact if own product
+    if (Auth.isLoggedIn() && Auth.getUser()?.id === product.seller_id) {
+      document.getElementById('btn-contact').textContent = '✏️ Editar Anúncio';
+      document.getElementById('btn-contact').onclick = () => location.href = `/pages/new-ad.html?edit=${product.id}`;
+    }
+
+    // Seller card
+    const avgRating = product.seller_reviews > 0 ? (product.seller_reputation / product.seller_reviews).toFixed(1) : '0.0';
+    document.getElementById('seller-card').innerHTML = `
+      <a href="/pages/user.html?id=${product.seller_id}" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit">
+        <div style="width:48px;height:48px;border-radius:50%;background:var(--lighter);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;overflow:hidden">
+          ${product.seller_avatar ? `<img src="http://localhost:3001${product.seller_avatar}" style="width:100%;height:100%;object-fit:cover">` : '👤'}
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:.9rem">${product.seller_name}
+            ${product.seller_verified ? '<span class="verified-badge" style="margin-left:4px">✓ Verificado</span>' : ''}
+          </div>
+          <div style="font-size:.8rem;color:var(--mid)">${UI.stars(avgRating)} · ${product.seller_reviews} avaliações</div>
+          <div style="font-size:.75rem;color:var(--mid)">${product.seller_active_ads} anúncios ativos</div>
+        </div>
+      </a>`;
+
+    // Reviews
+    const avgR = reviews.length ? (reviews.reduce((a,r) => a + r.stars, 0) / reviews.length).toFixed(1) : 0;
+    document.getElementById('seller-rating-summary').innerHTML = reviews.length
+      ? `${UI.stars(avgR)} <span style="font-size:.8rem;color:var(--mid)">${reviews.length} avaliações</span>` : '';
+    document.getElementById('reviews-list').innerHTML = reviews.length
+      ? reviews.map(r => `
+        <div style="padding:14px 0;border-bottom:1px solid var(--lighter)">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--lighter);display:flex;align-items:center;justify-content:center;font-size:.9rem">${r.reviewer_avatar?`<img src="http://localhost:3001${r.reviewer_avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : '👤'}</div>
+            <div>
+              <div style="font-weight:600;font-size:.85rem">${r.reviewer_name}</div>
+              <div>${UI.stars(r.stars, false)} <span style="font-size:.75rem;color:var(--mid)">${UI.formatDate(r.created_at)}</span></div>
+            </div>
+          </div>
+          ${r.comment ? `<p style="font-size:.875rem;color:var(--dark-2)">${r.comment}</p>` : ''}
+        </div>`).join('')
+      : '<p style="color:var(--mid);font-size:.875rem">Este vendedor ainda não tem avaliações.</p>';
+
+    // Related
+    document.getElementById('related-grid').innerHTML = related.length
+      ? related.map(p => UI.productCard(p)).join('')
+      : '<p style="color:var(--mid)">Sem relacionados.</p>';
+
+    // contact modal info
+    document.getElementById('contact-product-info').innerHTML = `<strong>${product.title}</strong><br>${UI.formatPrice(product.price)}`;
+
+  } catch(e) {
+    console.error(e);
+    UI.toast('Produto não encontrado.', 'error');
+    setTimeout(() => location.href = '/index.html', 2000);
+  }
+}
+
+function goToSlide(n) {
+  const track = document.getElementById('carousel-track');
+  track.style.transform = `translateX(-${n*100}%)`;
+  document.querySelectorAll('.carousel-dot').forEach((d,i) => d.classList.toggle('active', i===n));
+}
+
+function openContact() {
+  if (!Auth.isLoggedIn()) { openLoginModal(); return; }
+  document.getElementById('contact-modal').classList.remove('hidden');
+}
+
+async function sendContact() {
+  const msg = document.getElementById('contact-msg').value.trim();
+  if (!msg) { UI.toast('Digite uma mensagem', 'warning'); return; }
+  try {
+    const btn = document.querySelector('#contact-modal .btn-primary');
+    btn.disabled = true; btn.textContent = 'Enviando…';
+    const conv = await Http.post('/messages/start', { product_id: productId, first_message: msg });
+    document.getElementById('contact-modal').classList.add('hidden');
+    UI.toast('Mensagem enviada! ✅', 'success');
+    setTimeout(() => location.href = `/pages/messages.html#${conv.id}`, 800);
+  } catch(e) {
+    UI.toast(e.error || 'Erro ao enviar', 'error');
+    document.querySelector('#contact-modal .btn-primary').disabled = false;
+    document.querySelector('#contact-modal .btn-primary').textContent = '📨 Enviar Mensagem';
+  }
+}
+
+function openReport() {
+  if (!Auth.isLoggedIn()) { openLoginModal(); return; }
+  document.getElementById('report-modal').classList.remove('hidden');
+}
+
+async function submitReport() {
+  try {
+    await Http.post(`/products/${productId}/report`, {
+      reason: document.getElementById('report-reason').value,
+      details: document.getElementById('report-details').value
+    });
+    document.getElementById('report-modal').classList.add('hidden');
+    UI.toast('Denúncia registrada. Obrigado!', 'success');
+  } catch(e) { UI.toast(e.error || 'Erro', 'error'); }
+}
+
+async function handleFav() {
+  if (!Auth.isLoggedIn()) { openLoginModal(); return; }
+  try {
+    const { favorited } = await Http.post(`/products/${productId}/favorite`);
+    const btn = document.getElementById('btn-fav');
+    btn.textContent = favorited ? '❤️' : '♡';
+    UI.toast(favorited ? '💛 Adicionado aos favoritos' : 'Removido dos favoritos', 'info', 2000);
+  } catch(e) { UI.toast(e.error || 'Erro', 'error'); }
+}
+
+loadProduct();
+</script>
+</body>
+</html>

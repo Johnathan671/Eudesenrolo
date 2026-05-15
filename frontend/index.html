@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CellMart — Compre e Venda com Segurança</title>
+  <meta name="description" content="Marketplace de compra e venda de celulares, eletrônicos e muito mais. Seguro e confiável.">
+  <link rel="stylesheet" href="public/css/main.css">
+</head>
+<body>
+
+<!-- ─── HEADER ─────────────────────────────────────────────── -->
+<header class="header">
+  <div class="header-inner">
+    <a href="/index.html" class="logo">📱Cell<span>Mart</span></a>
+
+    <form class="search-bar" id="header-search-form" style="position:relative">
+      <input type="text" id="header-search" placeholder="Buscar produtos, marcas, categorias…" autocomplete="off">
+      <button type="submit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+      <ul class="autocomplete-list hidden" id="header-autocomplete"></ul>
+    </form>
+
+    <nav class="header-nav">
+      <a href="/index.html" class="active">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        Início
+      </a>
+      <a href="/pages/search.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Explorar
+      </a>
+      <a href="/pages/messages.html" id="nav-messages" class="notif-badge">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+        <span class="badge hidden" id="msg-badge">0</span>
+        Chat
+      </a>
+      <a href="/pages/notifications.html" class="notif-badge" id="nav-notif">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+        <span class="badge hidden" id="notif-badge">0</span>
+        Alertas
+      </a>
+      <a href="/pages/login.html" id="nav-login">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+        Entrar
+      </a>
+      <a href="/pages/profile.html" id="nav-user" class="hidden">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+        <span id="nav-user-name">Perfil</span>
+      </a>
+      <a href="/pages/admin.html" id="nav-admin" class="hidden">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+        Admin
+      </a>
+      <a href="/pages/new-ad.html" class="btn-post-ad">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        Anunciar
+      </a>
+    </nav>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- Mobile Nav -->
+<nav class="mobile-nav" id="mobile-nav">
+  <a href="/index.html">🏠 Início</a>
+  <a href="/pages/search.html">🔍 Explorar</a>
+  <a href="/pages/new-ad.html">➕ Anunciar</a>
+  <a href="/pages/messages.html">💬 Mensagens</a>
+  <a href="/pages/notifications.html">🔔 Notificações</a>
+  <a href="/pages/profile.html">👤 Meu Perfil</a>
+  <a href="/pages/favorites.html">❤️ Favoritos</a>
+  <a href="/pages/my-ads.html">📋 Meus Anúncios</a>
+  <a href="/pages/admin.html" id="mobile-admin" class="hidden">🛡️ Admin</a>
+  <a href="#" id="mobile-logout" style="color:var(--danger)">🚪 Sair</a>
+</nav>
+
+<!-- ─── HERO ────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <h1>Compre e venda com<br><em>segurança e facilidade</em></h1>
+      <p>Milhares de produtos anunciados por pessoas como você. Encontre o melhor preço.</p>
+      <form class="hero-search" onsubmit="heroSearch(event)">
+        <input type="text" id="hero-search-input" placeholder="O que você procura?">
+        <button type="submit">🔍 Buscar</button>
+      </form>
+      <div class="hero-stats" id="hero-stats">
+        <div class="hero-stat"><strong id="stat-ads">…</strong>Anúncios ativos</div>
+        <div class="hero-stat"><strong id="stat-users">…</strong>Usuários</div>
+        <div class="hero-stat"><strong id="stat-cats">10</strong>Categorias</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CATEGORIES ──────────────────────────────────────────── -->
+<section style="background:var(--white);padding:36px 0;border-bottom:1px solid var(--light)">
+  <div class="container">
+    <div class="section-title"><h2>Categorias</h2><a href="/pages/search.html">Ver todas →</a></div>
+    <div class="categories-grid" id="categories-grid">
+      <div class="cat-card skeleton" style="height:90px"></div>
+      <div class="cat-card skeleton" style="height:90px"></div>
+      <div class="cat-card skeleton" style="height:90px"></div>
+      <div class="cat-card skeleton" style="height:90px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FEATURED ────────────────────────────────────────────── -->
+<section class="page-wrap">
+  <div class="container">
+    <div class="section-title"><h2>⭐ Em Destaque</h2><a href="/pages/search.html?featured=1">Ver todos →</a></div>
+    <div class="grid-4" id="featured-grid">
+      <!-- skeleton -->
+      <div class="product-card"><div class="product-card-img skeleton" style="padding-top:70%"></div><div class="product-card-body"><div class="skeleton" style="height:32px;border-radius:4px"></div></div></div>
+      <div class="product-card"><div class="product-card-img skeleton" style="padding-top:70%"></div><div class="product-card-body"><div class="skeleton" style="height:32px;border-radius:4px"></div></div></div>
+      <div class="product-card"><div class="product-card-img skeleton" style="padding-top:70%"></div><div class="product-card-body"><div class="skeleton" style="height:32px;border-radius:4px"></div></div></div>
+      <div class="product-card"><div class="product-card-img skeleton" style="padding-top:70%"></div><div class="product-card-body"><div class="skeleton" style="height:32px;border-radius:4px"></div></div></div>
+    </div>
+
+    <div class="section-title" style="margin-top:40px"><h2>🕐 Recém Publicados</h2><a href="/pages/search.html">Ver todos →</a></div>
+    <div class="grid-4" id="recent-grid"></div>
+  </div>
+</section>
+
+<!-- ─── CTA BANNER ──────────────────────────────────────────── -->
+<section style="background:linear-gradient(135deg,var(--brand),var(--brand-dark));padding:48px 0;margin:0 0 0">
+  <div class="container" style="text-align:center">
+    <h2 style="color:white;font-size:1.8rem;margin-bottom:8px">Tem algo para vender?</h2>
+    <p style="color:rgba(255,255,255,.85);margin-bottom:24px">Anuncie grátis e alcance milhares de compradores na sua região.</p>
+    <a href="/pages/new-ad.html" class="btn btn-lg" style="background:white;color:var(--brand);font-weight:700">➕ Criar Anúncio Grátis</a>
+  </div>
+</section>
+
+<!-- ─── FOOTER ──────────────────────────────────────────────── -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="logo" style="margin-bottom:12px;font-size:1.4rem">📱Cell<span>Mart</span></div>
+        <p style="font-size:.85rem;color:rgba(255,255,255,.5);max-width:260px">O marketplace mais seguro para comprar e vender produtos usados e novos no Brasil.</p>
+      </div>
+      <div>
+        <h4>Navegação</h4>
+        <ul>
+          <li><a href="/index.html">Início</a></li>
+          <li><a href="/pages/search.html">Todos os Anúncios</a></li>
+          <li><a href="/pages/new-ad.html">Anunciar Grátis</a></li>
+          <li><a href="/pages/favorites.html">Favoritos</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Categorias</h4>
+        <ul id="footer-cats"></ul>
+      </div>
+      <div>
+        <h4>Ajuda</h4>
+        <ul>
+          <li><a href="#">Central de Ajuda</a></li>
+          <li><a href="#">Segurança</a></li>
+          <li><a href="#">Termos de Uso</a></li>
+          <li><a href="#">Privacidade</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2024 CellMart. Todos os direitos reservados.</span>
+      <span style="color:rgba(255,255,255,.4)">Feito com ❤️ no Brasil</span>
+    </div>
+  </div>
+</footer>
+
+<script src="public/js/app.js"></script>
+<script>
+const API_BASE = 'http://localhost:3001/api';
+
+function heroSearch(e) {
+  e.preventDefault();
+  const q = document.getElementById('hero-search-input').value.trim();
+  if (q) window.location.href = `/pages/search.html?q=${encodeURIComponent(q)}`;
+}
+
+async function loadHomepage() {
+  try {
+    // Categories
+    const cats = await Http.get('/categories');
+    document.getElementById('categories-grid').innerHTML = cats.slice(0,10).map(c => `
+      <a class="cat-card" href="/pages/search.html?category=${c.slug}">
+        <div class="cat-icon">${c.icon}</div>
+        <div class="cat-name">${c.name}</div>
+        <div class="cat-count">${c.product_count} anúncios</div>
+      </a>`).join('');
+    document.getElementById('footer-cats').innerHTML = cats.slice(0,5).map(c =>
+      `<li><a href="/pages/search.html?category=${c.slug}">${c.name}</a></li>`
+    ).join('');
+
+    // Featured ads
+    const featured = await Http.get('/products?featured=1&limit=8&sort=recent');
+    document.getElementById('featured-grid').innerHTML = featured.products.length
+      ? featured.products.map(p => UI.productCard(p)).join('')
+      : '<p style="color:var(--mid);grid-column:1/-1">Nenhum anúncio em destaque no momento.</p>';
+
+    // Recent ads
+    const recent = await Http.get('/products?limit=8&sort=recent');
+    document.getElementById('recent-grid').innerHTML = recent.products.length
+      ? recent.products.map(p => UI.productCard(p)).join('')
+      : '<p style="color:var(--mid);grid-column:1/-1">Nenhum anúncio encontrado.</p>';
+
+    // Stats
+    document.getElementById('stat-ads').textContent   = recent.total?.toLocaleString('pt-BR') || '0';
+    document.getElementById('stat-users').textContent = '+1.000';
+
+  } catch(e) {
+    console.error(e);
+    UI.toast('Erro ao carregar página. Verifique se o servidor está rodando.', 'error', 6000);
+  }
+}
+
+// Mobile logout
+document.getElementById('mobile-logout')?.addEventListener('click', e => {
+  e.preventDefault();
+  Auth.logout();
+});
+
+// Admin link mobile
+if (Auth.isAdmin()) document.getElementById('mobile-admin')?.classList.remove('hidden');
+
+loadHomepage();
+</script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cadastro — CellMart</title><link rel="stylesheet" href="../public/css/main.css"></head>
+<body style="background:var(--lighter);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px">
+<div style="width:100%;max-width:480px">
+  <a href="/index.html" class="logo" style="display:flex;justify-content:center;margin-bottom:28px;font-size:1.8rem">📱Cell<span>Mart</span></a>
+  <div class="card"><div class="card-body" style="padding:28px">
+    <h2 style="margin-bottom:4px">Criar conta grátis</h2>
+    <p style="color:var(--mid);font-size:.875rem;margin-bottom:24px">Anuncie e compre com segurança</p>
+    <div id="reg-alert" class="alert alert-error hidden"></div>
+    <form id="reg-form">
+      <div class="form-group"><label class="form-label">Nome completo <span class="req">*</span></label>
+        <input type="text" name="name" class="form-control" placeholder="Seu nome" required minlength="2"></div>
+      <div class="form-group"><label class="form-label">E-mail <span class="req">*</span></label>
+        <input type="email" name="email" class="form-control" placeholder="seu@email.com" required></div>
+      <div class="form-row form-row-2">
+        <div class="form-group"><label class="form-label">Senha <span class="req">*</span></label>
+          <input type="password" name="password" class="form-control" placeholder="Min. 6 caracteres" required minlength="6"></div>
+        <div class="form-group"><label class="form-label">Telefone</label>
+          <input type="tel" name="phone" class="form-control" placeholder="(11) 99999-9999"></div>
+      </div>
+      <div class="form-row form-row-2">
+        <div class="form-group"><label class="form-label">Cidade</label>
+          <input type="text" name="city" class="form-control" placeholder="Sua cidade"></div>
+        <div class="form-group"><label class="form-label">Estado</label>
+          <select name="state" class="form-control" id="state-sel"><option value="">Selecione</option></select></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:16px">
+        <input type="checkbox" id="terms" required style="margin-top:3px;accent-color:var(--brand)">
+        <label for="terms" style="font-size:.85rem;color:var(--mid)">Concordo com os <a href="#" style="color:var(--brand)">Termos de Uso</a> e a <a href="#" style="color:var(--brand)">Política de Privacidade</a></label>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full btn-lg">Criar Conta Grátis</button>
+    </form>
+    <p style="text-align:center;margin-top:20px;font-size:.875rem;color:var(--mid)">
+      Já tem conta? <a href="/pages/login.html" style="color:var(--brand);font-weight:600">Entrar</a>
+    </p>
+  </div></div>
+</div>
+<script src="../public/js/app.js"></script>
+<script>
+if (Auth.isLoggedIn()) location.href = '/index.html';
+Http.get('/states').then(states => {
+  document.getElementById('state-sel').innerHTML = '<option value="">Selecione</option>' + states.map(s=>`<option>${s}</option>`).join('');
+});
+document.getElementById('reg-form').onsubmit = async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const btn = e.target.querySelector('button'); btn.disabled=true; btn.textContent='Criando conta…';
+  const errEl = document.getElementById('reg-alert');
+  try {
+    const { token, user } = await Http.post('/auth/register', {
+      name: fd.get('name'), email: fd.get('email'), password: fd.get('password'),
+      phone: fd.get('phone'), city: fd.get('city'), state: fd.get('state')
+    });
+    Auth.login(token, user);
+    UI.toast('Conta criada com sucesso! 🎉', 'success');
+    setTimeout(() => location.href = '/index.html', 600);
+  } catch(err) {
+    const msgs = err.errors ? err.errors.join(', ') : (err.error || 'Erro ao criar conta');
+    errEl.textContent = msgs; errEl.classList.remove('hidden');
+    btn.disabled=false; btn.textContent='Criar Conta Grátis';
+  }
+};
+</script>
+</body></html>

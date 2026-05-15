@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notificações — CellMart</title><link rel="stylesheet" href="../public/css/main.css"></head>
+<body>
+<header class="header"><div class="header-inner">
+  <a href="/index.html" class="logo">📱Cell<span>Mart</span></a>
+  <nav class="header-nav">
+    <a href="/index.html"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Início</a>
+    <a href="/pages/profile.html" id="nav-user" class="hidden"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg><span id="nav-user-name">Perfil</span></a>
+  </nav>
+</div></header>
+<div class="container page-wrap" style="max-width:640px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+    <h1>🔔 Notificações</h1>
+    <button class="btn btn-secondary btn-sm" onclick="markAll()">Marcar todas como lidas</button>
+  </div>
+  <div id="notif-list"><div style="text-align:center;padding:32px"><div class="spinner" style="margin:0 auto"></div></div></div>
+</div>
+<script src="../public/js/app.js"></script>
+<script>
+if (!Auth.isLoggedIn()) location.href = '/pages/login.html';
+const icons = { message:'💬', success:'✅', warning:'⚠️', info:'ℹ️' };
+async function load() {
+  const { notifications } = await Http.get('/notifications');
+  document.getElementById('notif-list').innerHTML = notifications.length
+    ? notifications.map(n => `
+      <div onclick="openNotif(${n.id},'${n.link||''}')" style="display:flex;gap:14px;padding:16px;background:${n.read?'var(--white)':'var(--brand-bg)'};border:1px solid ${n.read?'var(--light)':'rgba(255,107,0,.2)'};border-radius:var(--radius);margin-bottom:10px;cursor:pointer;transition:.2s" onmouseover="this.style.transform='translateX(3px)'" onmouseout="this.style.transform=''">
+        <div style="font-size:1.4rem;flex-shrink:0">${icons[n.type]||'ℹ️'}</div>
+        <div style="flex:1">
+          <p style="font-size:.9rem;margin-bottom:4px;color:var(--dark-2)">${n.message}</p>
+          <span style="font-size:.75rem;color:var(--mid)">${UI.formatDate(n.created_at)}</span>
+        </div>
+        ${!n.read ? '<div style="width:8px;height:8px;border-radius:50%;background:var(--brand);margin-top:6px;flex-shrink:0"></div>' : ''}
+      </div>`).join('')
+    : '<div class="empty-state"><div class="icon">🔔</div><h3>Sem notificações</h3><p>Você está em dia!</p></div>';
+}
+async function openNotif(id, link) {
+  await Http.put(`/notifications/${id}/read`);
+  if (link) location.href = link;
+}
+async function markAll() {
+  await Http.put('/notifications/read-all');
+  UI.toast('Todas marcadas como lidas', 'success');
+  load();
+}
+load();
+</script>
+</body></html>

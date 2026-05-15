@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Entrar — CellMart</title><link rel="stylesheet" href="../public/css/main.css"></head>
+<body style="background:var(--lighter);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px">
+<div style="width:100%;max-width:420px">
+  <a href="/index.html" class="logo" style="display:flex;justify-content:center;margin-bottom:28px;font-size:1.8rem">📱Cell<span>Mart</span></a>
+  <div class="card"><div class="card-body" style="padding:28px">
+    <h2 style="margin-bottom:4px">Bem-vindo de volta</h2>
+    <p style="color:var(--mid);font-size:.875rem;margin-bottom:24px">Entre na sua conta para continuar</p>
+    <div id="login-alert" class="alert alert-error hidden"></div>
+    <form id="login-form">
+      <div class="form-group"><label class="form-label">E-mail <span class="req">*</span></label>
+        <input type="email" name="email" class="form-control" placeholder="seu@email.com" required></div>
+      <div class="form-group"><label class="form-label">Senha <span class="req">*</span></label>
+        <input type="password" name="password" class="form-control" placeholder="••••••" required></div>
+      <button type="submit" class="btn btn-primary btn-full btn-lg" style="margin-top:8px">Entrar</button>
+    </form>
+    <p style="text-align:center;margin-top:20px;font-size:.875rem;color:var(--mid)">
+      Não tem conta? <a href="/pages/register.html" style="color:var(--brand);font-weight:600">Cadastre-se grátis</a>
+    </p>
+  </div></div>
+</div>
+<script src="../public/js/app.js"></script>
+<script>
+if (Auth.isLoggedIn()) location.href = '/index.html';
+document.getElementById('login-form').onsubmit = async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const btn = e.target.querySelector('button'); btn.disabled=true; btn.textContent='Entrando…';
+  const errEl = document.getElementById('login-alert');
+  try {
+    const { token, user } = await Http.post('/auth/login', { email: fd.get('email'), password: fd.get('password') });
+    Auth.login(token, user);
+    UI.toast(`Bem-vindo, ${user.name.split(' ')[0]}! 👋`, 'success');
+    const redirect = new URLSearchParams(location.search).get('redirect') || (user.role==='admin' ? '/pages/admin.html' : '/index.html');
+    setTimeout(() => location.href = redirect, 600);
+  } catch(err) {
+    errEl.textContent = err.error || 'Credenciais inválidas'; errEl.classList.remove('hidden');
+    btn.disabled=false; btn.textContent='Entrar';
+  }
+};
+</script>
+</body></html>

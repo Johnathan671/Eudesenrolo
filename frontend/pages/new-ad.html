@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Novo Anúncio — CellMart</title><link rel="stylesheet" href="../public/css/main.css"></head>
+<body>
+<header class="header"><div class="header-inner">
+  <a href="/index.html" class="logo">📱Cell<span>Mart</span></a>
+  <nav class="header-nav">
+    <a href="/index.html"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Início</a>
+    <a href="/pages/profile.html" id="nav-user" class="hidden"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg><span id="nav-user-name">Perfil</span></a>
+  </nav>
+</div></header>
+
+<div class="container page-wrap" style="max-width:760px">
+  <div style="margin-bottom:24px">
+    <h1 id="page-title">Criar Novo Anúncio</h1>
+    <p style="color:var(--mid)">Preencha as informações do seu produto</p>
+  </div>
+
+  <form id="ad-form" enctype="multipart/form-data">
+    <!-- Fotos -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header"><h3>📸 Fotos do produto</h3></div>
+      <div class="card-body">
+        <p style="font-size:.85rem;color:var(--mid);margin-bottom:12px">Adicione até 8 fotos. A primeira será a foto principal.</p>
+        <div class="upload-zone" id="upload-zone" onclick="document.getElementById('img-input').click()">
+          <div class="icon">📷</div>
+          <p><strong>Clique para selecionar</strong> ou arraste as fotos aqui</p>
+          <p style="font-size:.75rem;margin-top:4px">JPG, PNG ou WebP — máx. 5MB cada</p>
+        </div>
+        <input type="file" id="img-input" accept="image/*" multiple style="display:none" onchange="previewImages(this.files)">
+        <div class="image-preview-grid" id="preview-grid"></div>
+      </div>
+    </div>
+
+    <!-- Dados básicos -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header"><h3>📋 Informações básicas</h3></div>
+      <div class="card-body">
+        <div class="form-group"><label class="form-label">Título do anúncio <span class="req">*</span></label>
+          <input type="text" name="title" class="form-control" placeholder="Ex: iPhone 13 Pro Max 256GB - Azul" required maxlength="120">
+          <div style="font-size:.75rem;color:var(--mid);margin-top:4px">Seja específico: marca, modelo, capacidade, cor</div>
+        </div>
+        <div class="form-row form-row-2">
+          <div class="form-group"><label class="form-label">Categoria <span class="req">*</span></label>
+            <select name="category_id" class="form-control" required id="cat-select"><option value="">Selecione…</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Condição <span class="req">*</span></label>
+            <select name="condition" class="form-control" required>
+              <option value="novo">Novo</option>
+              <option value="seminovo" selected>Seminovo</option>
+              <option value="usado">Usado</option>
+              <option value="pecas">Para peças</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Descrição <span class="req">*</span></label>
+          <textarea name="description" class="form-control" rows="5" placeholder="Descreva seu produto: estado, acessórios inclusos, motivo da venda, detalhes importantes…" required minlength="20" maxlength="4000"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preço -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header"><h3>💰 Preço</h3></div>
+      <div class="card-body">
+        <div class="form-row form-row-2">
+          <div class="form-group"><label class="form-label">Preço (R$) <span class="req">*</span></label>
+            <input type="number" name="price" class="form-control" placeholder="0,00" min="0" step="0.01" required>
+          </div>
+          <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:4px">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.9rem">
+              <input type="checkbox" name="price_negotiable" value="1" style="accent-color:var(--brand);width:18px;height:18px">
+              Preço negociável
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Localização -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header"><h3>📍 Localização</h3></div>
+      <div class="card-body">
+        <div class="form-row form-row-3">
+          <div class="form-group"><label class="form-label">Cidade</label>
+            <input type="text" name="city" class="form-control" placeholder="Sua cidade"></div>
+          <div class="form-group"><label class="form-label">Estado</label>
+            <select name="state" class="form-control" id="state-sel"><option value="">UF</option></select></div>
+          <div class="form-group"><label class="form-label">Bairro</label>
+            <input type="text" name="neighborhood" class="form-control" placeholder="Opcional"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="form-alert" class="alert alert-error hidden"></div>
+    <div style="display:flex;gap:12px;justify-content:flex-end">
+      <a href="/index.html" class="btn btn-secondary">Cancelar</a>
+      <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        Publicar Anúncio
+      </button>
+    </div>
+  </form>
+</div>
+
+<script src="../public/js/app.js"></script>
+<script>
+if (!Auth.isLoggedIn()) location.href = '/pages/login.html?redirect=/pages/new-ad.html';
+
+const editId = new URLSearchParams(location.search).get('edit');
+let selectedFiles = [];
+
+// Load selects
+Promise.all([Http.get('/categories'), Http.get('/states')]).then(([cats, states]) => {
+  document.getElementById('cat-select').innerHTML = '<option value="">Selecione…</option>' + cats.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+  document.getElementById('state-sel').innerHTML = '<option value="">UF</option>' + states.map(s=>`<option>${s}</option>`).join('');
+  if (editId) loadForEdit();
+});
+
+async function loadForEdit() {
+  document.getElementById('page-title').textContent = 'Editar Anúncio';
+  document.getElementById('submit-btn').textContent = '💾 Salvar Alterações';
+  try {
+    const { product, images } = await Http.get(`/products/${editId}`);
+    const f = document.getElementById('ad-form');
+    f.title.value = product.title;
+    f.description.value = product.description;
+    f.price.value = product.price;
+    f.condition.value = product.condition;
+    f.price_negotiable.checked = !!product.price_negotiable;
+    f.city.value = product.city || '';
+    f.state.value = product.state || '';
+    f.neighborhood.value = product.neighborhood || '';
+    document.getElementById('cat-select').value = product.category_id;
+    // Show existing images
+    document.getElementById('preview-grid').innerHTML = images.map(img => `
+      <div class="image-preview${img.is_primary?' primary':''}">
+        <img src="http://localhost:3001${img.url}">
+        <span style="position:absolute;bottom:2px;left:2px;background:rgba(0,0,0,.5);color:white;font-size:.6rem;padding:1px 4px;border-radius:4px">Existente</span>
+      </div>`).join('');
+  } catch(e) { UI.toast('Erro ao carregar anúncio', 'error'); }
+}
+
+// Drag & drop
+const zone = document.getElementById('upload-zone');
+zone.ondragover = e => { e.preventDefault(); zone.classList.add('drag'); };
+zone.ondragleave = () => zone.classList.remove('drag');
+zone.ondrop = e => { e.preventDefault(); zone.classList.remove('drag'); previewImages(e.dataTransfer.files); };
+
+function previewImages(files) {
+  const newFiles = Array.from(files).slice(0, 8 - selectedFiles.length);
+  selectedFiles = [...selectedFiles, ...newFiles].slice(0, 8);
+  const grid = document.getElementById('preview-grid');
+  grid.innerHTML = selectedFiles.map((f, i) => {
+    const url = URL.createObjectURL(f);
+    return `<div class="image-preview${i===0?' primary':''}">
+      <img src="${url}">
+      <button class="remove-img" onclick="removeImg(${i})">×</button>
+    </div>`;
+  }).join('');
+}
+
+function removeImg(idx) {
+  selectedFiles.splice(idx, 1);
+  previewImages([]);
+}
+
+document.getElementById('ad-form').onsubmit = async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  selectedFiles.forEach(f => fd.append('images', f));
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true; btn.textContent = 'Publicando…';
+  const errEl = document.getElementById('form-alert');
+
+  try {
+    let result;
+    if (editId) {
+      result = await Http.uploadPut(`/products/${editId}`, fd);
+      UI.toast('Anúncio atualizado! ✅', 'success');
+    } else {
+      result = await Http.upload('/products', fd);
+      UI.toast('Anúncio publicado! 🎉', 'success');
+    }
+    setTimeout(() => location.href = `/pages/product.html?id=${result.id || editId}`, 700);
+  } catch(err) {
+    const msgs = err.errors ? err.errors.join(', ') : (err.error || 'Erro ao publicar');
+    errEl.textContent = msgs; errEl.classList.remove('hidden');
+    btn.disabled=false; btn.textContent = editId ? '💾 Salvar Alterações' : '➕ Publicar Anúncio';
+  }
+};
+</script>
+</body></html>

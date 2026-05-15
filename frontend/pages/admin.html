@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Painel Admin — CellMart</title><link rel="stylesheet" href="../public/css/main.css"></head>
+<body>
+<header class="header"><div class="header-inner">
+  <a href="/index.html" class="logo">📱Cell<span>Mart</span></a>
+  <span style="font-size:.8rem;background:var(--danger);color:white;padding:3px 10px;border-radius:20px;font-weight:700">🛡 Painel Admin</span>
+  <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
+    <a href="/index.html" class="btn btn-secondary btn-sm">← Ver Site</a>
+    <button onclick="Auth.logout()" class="btn btn-danger btn-sm">Sair</button>
+  </div>
+</div></header>
+
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <a class="admin-nav-item active" onclick="showSection('dashboard')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>Dashboard
+    </a>
+    <a class="admin-nav-item" onclick="showSection('users')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Usuários
+    </a>
+    <a class="admin-nav-item" onclick="showSection('products')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-2.18c.07-.44.18-.88.18-1.35C18 2.05 15.96 0 13.5 0c-1.3 0-2.51.56-3.36 1.46L9 3 7.86 1.46C7.01.56 5.8 0 4.5 0 2.04 0 0 2.05 0 4.65c0 .47.11.91.18 1.35H0v2h20V6z"/></svg>Anúncios
+    </a>
+    <a class="admin-nav-item" onclick="showSection('reports')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>Denúncias <span id="reports-badge" class="badge" style="position:static;display:inline-flex;margin-left:4px;min-width:18px;height:18px;font-size:.65rem;background:var(--danger)">0</span>
+    </a>
+    <a class="admin-nav-item" onclick="showSection('notify')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>Notificações
+    </a>
+  </aside>
+
+  <!-- Content -->
+  <main class="admin-content">
+    <!-- Dashboard -->
+    <div id="sec-dashboard">
+      <h2 style="margin-bottom:20px">📊 Dashboard</h2>
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card skeleton" style="height:100px"></div>
+        <div class="stat-card skeleton" style="height:100px"></div>
+        <div class="stat-card skeleton" style="height:100px"></div>
+        <div class="stat-card skeleton" style="height:100px"></div>
+      </div>
+      <div style="margin-top:28px">
+        <h3 style="margin-bottom:16px">🕐 Usuários Recentes</h3>
+        <div class="table-wrap card"><table>
+          <thead><tr><th>Nome</th><th>E-mail</th><th>Role</th><th>Cadastro</th></tr></thead>
+          <tbody id="recent-users-table"></tbody>
+        </table></div>
+      </div>
+      <div style="margin-top:24px">
+        <h3 style="margin-bottom:16px">📦 Top Categorias</h3>
+        <div id="top-cats-grid" class="stats-grid"></div>
+      </div>
+    </div>
+
+    <!-- Users -->
+    <div id="sec-users" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+        <h2>👥 Gerenciar Usuários</h2>
+        <div style="display:flex;gap:10px">
+          <input type="text" id="user-search" class="form-control" placeholder="Buscar por nome/email…" style="width:220px" oninput="loadUsers()">
+          <select id="user-filter" class="form-control" style="width:auto" onchange="loadUsers()">
+            <option value="">Todos</option><option value="admin">Admins</option><option value="user">Usuários</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrap card">
+        <table>
+          <thead><tr><th>Usuário</th><th>E-mail</th><th>Role</th><th>Status</th><th>Cadastro</th><th>Ações</th></tr></thead>
+          <tbody id="users-table"><tr><td colspan="6" style="text-align:center;padding:24px"><div class="spinner" style="margin:0 auto"></div></td></tr></tbody>
+        </table>
+      </div>
+      <div id="users-pagination"></div>
+    </div>
+
+    <!-- Products -->
+    <div id="sec-products" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+        <h2>📦 Gerenciar Anúncios</h2>
+        <select id="prod-status-filter" class="form-control" style="width:auto" onchange="loadProducts()">
+          <option value="">Todos</option><option value="active">Ativos</option><option value="pending">Pendentes</option><option value="rejected">Rejeitados</option><option value="sold">Vendidos</option>
+        </select>
+      </div>
+      <div class="table-wrap card">
+        <table>
+          <thead><tr><th>Produto</th><th>Vendedor</th><th>Preço</th><th>Status</th><th>Denúncias</th><th>Ações</th></tr></thead>
+          <tbody id="products-table"><tr><td colspan="6" style="text-align:center;padding:24px"><div class="spinner" style="margin:0 auto"></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Reports -->
+    <div id="sec-reports" style="display:none">
+      <h2 style="margin-bottom:20px">⚑ Denúncias Abertas</h2>
+      <div id="reports-list"></div>
+    </div>
+
+    <!-- Notify -->
+    <div id="sec-notify" style="display:none;max-width:520px">
+      <h2 style="margin-bottom:20px">🔔 Enviar Notificação</h2>
+      <div class="card"><div class="card-body">
+        <div id="notify-alert" class="alert hidden"></div>
+        <form id="notify-form">
+          <div class="form-group"><label class="form-label">Destinatário</label>
+            <select name="user_id" class="form-control"><option value="all">Todos os usuários</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Tipo</label>
+            <select name="type" class="form-control">
+              <option value="info">Informação</option><option value="success">Sucesso</option><option value="warning">Aviso</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Mensagem <span class="req">*</span></label>
+            <textarea name="message" class="form-control" rows="3" required placeholder="Texto da notificação…"></textarea>
+          </div>
+          <div class="form-group"><label class="form-label">Link (opcional)</label>
+            <input type="text" name="link" class="form-control" placeholder="/pages/product.html?id=…">
+          </div>
+          <button type="submit" class="btn btn-primary">📨 Enviar Notificação</button>
+        </form>
+      </div></div>
+    </div>
+  </main>
+</div>
+
+<script src="../public/js/app.js"></script>
+<script>
+// Guard
+if (!Auth.isLoggedIn() || !Auth.isAdmin()) { location.href = '/pages/login.html'; }
+
+function showSection(s) {
+  ['dashboard','users','products','reports','notify'].forEach(id => {
+    document.getElementById(`sec-${id}`).style.display = id === s ? '' : 'none';
+  });
+  document.querySelectorAll('.admin-nav-item').forEach((el, i) =>
+    el.classList.toggle('active', ['dashboard','users','products','reports','notify'][i] === s));
+  if (s==='users') loadUsers();
+  if (s==='products') loadProducts();
+  if (s==='reports') loadReports();
+}
+
+// ─── Dashboard ─────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const s = await Http.get('/admin/stats');
+    document.getElementById('reports-badge').textContent = s.reports;
+    document.getElementById('stats-grid').innerHTML = [
+      { icon:'👥', label:'Usuários', val: s.users, color:'#3b82f6' },
+      { icon:'📦', label:'Anúncios Ativos', val: s.products, color:'#10b981' },
+      { icon:'⏳', label:'Pendentes', val: s.pending, color:'#f59e0b' },
+      { icon:'⚑', label:'Denúncias', val: s.reports, color:'#ef4444' },
+      { icon:'🚫', label:'Banidos', val: s.banned, color:'#64748b' },
+      { icon:'👁', label:'Total de Views', val: s.totalViews.toLocaleString('pt-BR'), color:'#8b5cf6' },
+      { icon:'🆕', label:'Novos hoje (users)', val: s.newUsersDay, color:'#06b6d4' },
+      { icon:'🆕', label:'Novos hoje (ads)', val: s.newAdsDay, color:'#f97316' },
+    ].map(c => `<div class="stat-card"><div class="stat-card-icon">${c.icon}</div><div class="stat-card-value" style="color:${c.color}">${c.val}</div><div class="stat-card-label">${c.label}</div></div>`).join('');
+
+    document.getElementById('recent-users-table').innerHTML = s.recentUsers.map(u => `
+      <tr>
+        <td><strong>${u.name}</strong></td>
+        <td style="color:var(--mid);font-size:.85rem">${u.email}</td>
+        <td><span style="font-size:.75rem;padding:2px 8px;border-radius:20px;background:${u.role==='admin'?'#FEE2E2':'#DBEAFE'};color:${u.role==='admin'?'#991B1B':'#1E3A8A'}">${u.role}</span></td>
+        <td style="color:var(--mid);font-size:.8rem">${UI.formatDate(u.created_at)}</td>
+      </tr>`).join('');
+
+    document.getElementById('top-cats-grid').innerHTML = s.topCategories.map(c => `
+      <div class="stat-card"><div class="stat-card-icon">${c.icon}</div><div class="stat-card-value">${c.total}</div><div class="stat-card-label">${c.name}</div></div>`).join('');
+  } catch(e) { UI.toast('Erro ao carregar stats', 'error'); }
+}
+
+// ─── Users ─────────────────────────────────────────────────────
+async function loadUsers(page = 1) {
+  const q    = document.getElementById('user-search').value;
+  const role = document.getElementById('user-filter').value;
+  try {
+    const { users, total } = await Http.get(`/admin/users?page=${page}&q=${encodeURIComponent(q)}&role=${role}`);
+    document.getElementById('users-table').innerHTML = users.map(u => `
+      <tr>
+        <td><strong>${u.name}</strong>${u.verified?'<span class="verified-badge" style="margin-left:6px;font-size:.65rem">✓</span>':''}</td>
+        <td style="font-size:.85rem;color:var(--mid)">${u.email}</td>
+        <td><span style="font-size:.75rem;padding:2px 8px;border-radius:20px;background:${u.role==='admin'?'#FEE2E2':'#DBEAFE'};color:${u.role==='admin'?'#991B1B':'#1E3A8A'}">${u.role}</span></td>
+        <td>${u.banned ? '<span style="color:var(--danger);font-size:.8rem;font-weight:600">🚫 Banido</span>' : '<span style="color:var(--success);font-size:.8rem">✅ Ativo</span>'}</td>
+        <td style="font-size:.8rem;color:var(--mid)">${UI.formatDate(u.created_at)}</td>
+        <td>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            ${!u.verified ? `<button class="btn btn-success btn-sm" onclick="verifyUser('${u.id}')">✓ Verificar</button>` : ''}
+            ${u.banned
+              ? `<button class="btn btn-success btn-sm" onclick="unbanUser('${u.id}')">🔓 Desbanir</button>`
+              : `<button class="btn btn-danger btn-sm" onclick="banUser('${u.id}','${u.name}')">🚫 Banir</button>`}
+          </div>
+        </td>
+      </tr>`).join('');
+    renderPagination(document.getElementById('users-pagination'), page, Math.ceil(total/20), 'loadUsers');
+  } catch(e) { UI.toast('Erro ao carregar usuários', 'error'); }
+}
+
+async function banUser(id, name) {
+  const reason = prompt(`Motivo do ban de "${name}":`);
+  if (reason === null) return;
+  try { await Http.put(`/admin/users/${id}/ban`, { reason }); UI.toast('Usuário banido', 'success'); loadUsers(); }
+  catch(e) { UI.toast(e.error || 'Erro', 'error'); }
+}
+async function unbanUser(id) {
+  try { await Http.put(`/admin/users/${id}/unban`); UI.toast('Usuário desbanido', 'success'); loadUsers(); }
+  catch(e) { UI.toast(e.error || 'Erro', 'error'); }
+}
+async function verifyUser(id) {
+  try { await Http.put(`/admin/users/${id}/verify`); UI.toast('Usuário verificado ✓', 'success'); loadUsers(); }
+  catch(e) { UI.toast(e.error || 'Erro', 'error'); }
+}
+
+// ─── Products ──────────────────────────────────────────────────
+async function loadProducts(page = 1) {
+  const status = document.getElementById('prod-status-filter').value;
+  try {
+    const { products } = await Http.get(`/admin/products?page=${page}&status=${status}`);
+    document.getElementById('products-table').innerHTML = products.map(p => `
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px">
+            ${p.primary_image ? `<img src="http://localhost:3001${p.primary_image}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;flex-shrink:0">` : '<div style="width:40px;height:40px;background:var(--lighter);border-radius:6px;display:flex;align-items:center;justify-content:center">📷</div>'}
+            <div><a href="/pages/product.html?id=${p.id}" target="_blank" style="font-weight:600;font-size:.85rem;color:var(--brand)">${p.title.slice(0,40)}…</a><div style="font-size:.75rem;color:var(--mid)">${p.category_name||''}</div></div>
+          </div>
+        </td>
+        <td style="font-size:.82rem">${p.seller_name}<br><span style="color:var(--mid)">${p.seller_email}</span></td>
+        <td style="font-weight:700;color:var(--brand)">${UI.formatPrice(p.price)}</td>
+        <td><span style="font-size:.75rem;padding:2px 8px;border-radius:20px;background:${{active:'#D1FAE5',sold:'#DBEAFE',paused:'#FEF3C7',rejected:'#FEE2E2',pending:'#E0E7FF'}[p.status]};color:${{active:'#065F46',sold:'#1E3A8A',paused:'#92400E',rejected:'#991B1B',pending:'#3730A3'}[p.status]}">${p.status}</span></td>
+        <td>${p.open_reports > 0 ? `<span style="color:var(--danger);font-weight:700">⚑ ${p.open_reports}</span>` : '—'}</td>
+        <td>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn btn-sm" style="background:#E0E7FF;color:#3730A3" onclick="featureProduct('${p.id}')">${p.featured?'★ Remover':'☆ Destacar'}</button>
+            ${p.status==='pending' ? `<button class="btn btn-success btn-sm" onclick="approveProduct('${p.id}')">✓ Aprovar</button>` : ''}
+            <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">🗑</button>
+          </div>
+        </td>
+      </tr>`).join('');
+  } catch(e) { UI.toast('Erro ao carregar produtos', 'error'); }
+}
+
+async function featureProduct(id) {
+  try { const r = await Http.put(`/admin/products/${id}/feature`); UI.toast(r.message, 'success'); loadProducts(); }
+  catch(e) { UI.toast(e.error || 'Erro', 'error'); }
+}
+async function approveProduct(id) {
+  try { await Http.put(`/admin/products/${id}/approve`); UI.toast('Anúncio aprovado!', 'success'); loadProducts(); }
+  catch(e) { UI.toast(e.error || 'Erro', 'error'); }
+}
+async function deleteProduct(id) {
+  UI.confirm('Remover este anúncio permanentemente?', async () => {
+    try { await Http.delete(`/admin/products/${id}`); UI.toast('Anúncio removido', 'success'); loadProducts(); }
+    catch(e) { UI.toast(e.error || 'Erro', 'error'); }
+  }, 'Remover');
+}
+
+// ─── Reports ───────────────────────────────────────────────────
+async function loadReports() {
+  try {
+    const reports = await Http.get('/admin/reports');
+    document.getElementById('reports-badge').textContent = reports.length;
+    document.getElementById('reports-list').innerHTML = reports.length
+      ? reports.map(r => `
+        <div class="card" style="margin-bottom:12px">
+          <div class="card-body" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+            <div>
+              <div style="font-weight:700;margin-bottom:4px">⚑ ${r.reason}</div>
+              <div style="font-size:.85rem;color:var(--mid)">Produto: <a href="/pages/product.html?id=${r.product_id}" style="color:var(--brand)" target="_blank">${r.product_title||r.product_id}</a></div>
+              <div style="font-size:.85rem;color:var(--mid)">Por: ${r.reporter_name} (${r.reporter_email})</div>
+              ${r.details ? `<div style="font-size:.85rem;margin-top:6px;padding:8px;background:var(--lighter);border-radius:6px">${r.details}</div>` : ''}
+              <div style="font-size:.75rem;color:var(--mid);margin-top:4px">${UI.formatDate(r.created_at)}</div>
+            </div>
+            <div style="display:flex;gap:8px;flex-shrink:0">
+              <button class="btn btn-success btn-sm" onclick="resolveReport(${r.id})">✓ Resolver</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteProduct('${r.product_id}')">🗑 Remover anúncio</button>
+            </div>
+          </div>
+        </div>`).join('')
+      : '<div class="empty-state"><div class="icon">✅</div><h3>Sem denúncias abertas</h3></div>';
+  } catch(e) { UI.toast('Erro ao carregar denúncias', 'error'); }
+}
+
+async function resolveReport(id) {
+  try { await Http.put(`/admin/reports/${id}/resolve`); UI.toast('Resolvida!', 'success'); loadReports(); }
+  catch(e) { UI.toast(e.error || 'Erro', 'error'); }
+}
+
+// ─── Notify ────────────────────────────────────────────────────
+document.getElementById('notify-form').onsubmit = async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const alertEl = document.getElementById('notify-alert');
+  try {
+    const r = await Http.post('/admin/notify', {
+      user_id: fd.get('user_id'), type: fd.get('type'),
+      message: fd.get('message'), link: fd.get('link')
+    });
+    alertEl.className = 'alert alert-success'; alertEl.textContent = `✅ ${r.message}`; alertEl.classList.remove('hidden');
+    e.target.reset();
+  } catch(err) { alertEl.className = 'alert alert-error'; alertEl.textContent = err.error || 'Erro'; alertEl.classList.remove('hidden'); }
+};
+
+loadDashboard();
+</script>
+</body></html>

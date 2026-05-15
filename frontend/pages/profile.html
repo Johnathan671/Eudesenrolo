@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Meu Perfil — CellMart</title><link rel="stylesheet" href="../public/css/main.css"></head>
+<body>
+<header class="header"><div class="header-inner">
+  <a href="/index.html" class="logo">📱Cell<span>Mart</span></a>
+  <nav class="header-nav">
+    <a href="/index.html"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Início</a>
+    <a href="/pages/messages.html" class="notif-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><span class="badge hidden" id="msg-badge">0</span>Chat</a>
+    <a href="/pages/new-ad.html" class="btn-post-ad"><svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>Anunciar</a>
+    <button onclick="Auth.logout()" class="btn btn-secondary btn-sm">Sair</button>
+  </nav>
+</div></header>
+
+<!-- Profile header -->
+<div class="profile-header">
+  <div class="container">
+    <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+      <div style="position:relative">
+        <img id="avatar-img" src="" alt="Avatar" class="profile-avatar" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="display:none">
+        <div style="width:80px;height:80px;border-radius:50%;background:var(--dark-3);display:flex;align-items:center;justify-content:center;font-size:2rem;border:3px solid var(--brand)" id="avatar-placeholder">👤</div>
+      </div>
+      <div style="flex:1">
+        <h1 id="user-name" style="color:white;font-size:1.4rem;margin-bottom:4px">Carregando…</h1>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+          <span id="verified-badge" class="hidden verified-badge">✓ Verificado</span>
+          <span id="premium-badge" class="hidden premium-badge">⭐ Premium</span>
+          <span id="admin-badge" class="hidden" style="background:var(--danger);color:white;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px">🛡 Admin</span>
+        </div>
+        <p id="user-meta" style="color:rgba(255,255,255,.6);font-size:.85rem"></p>
+      </div>
+      <div style="display:flex;gap:28px;text-align:center">
+        <div><div id="stat-ads" style="font-family:var(--font-display);font-size:1.6rem;font-weight:800;color:white">0</div><div style="font-size:.75rem;color:rgba(255,255,255,.6)">Anúncios</div></div>
+        <div><div id="stat-rep" style="font-family:var(--font-display);font-size:1.6rem;font-weight:800;color:white">0.0</div><div style="font-size:.75rem;color:rgba(255,255,255,.6)">Reputação</div></div>
+        <div><div id="stat-sales" style="font-family:var(--font-display);font-size:1.6rem;font-weight:800;color:white">0</div><div style="font-size:.75rem;color:rgba(255,255,255,.6)">Vendas</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container page-wrap">
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('ads')">📋 Meus Anúncios</button>
+    <button class="tab" onclick="showTab('favs')">❤️ Favoritos</button>
+    <button class="tab" onclick="showTab('settings')">⚙️ Configurações</button>
+  </div>
+
+  <!-- My Ads -->
+  <div id="tab-ads">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+      <a href="/pages/new-ad.html" class="btn btn-primary">➕ Novo Anúncio</a>
+    </div>
+    <div id="my-ads-grid" class="grid-4"></div>
+  </div>
+
+  <!-- Favorites -->
+  <div id="tab-favs" style="display:none">
+    <div id="favs-grid" class="grid-4"></div>
+  </div>
+
+  <!-- Settings -->
+  <div id="tab-settings" style="display:none;max-width:560px">
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header"><h3>Dados Pessoais</h3></div>
+      <div class="card-body">
+        <div id="settings-alert" class="alert hidden"></div>
+        <form id="settings-form">
+          <div class="form-group"><label class="form-label">Nome</label><input type="text" name="name" class="form-control" id="s-name"></div>
+          <div class="form-row form-row-2">
+            <div class="form-group"><label class="form-label">Telefone</label><input type="tel" name="phone" class="form-control" id="s-phone"></div>
+            <div class="form-group"><label class="form-label">Cidade</label><input type="text" name="city" class="form-control" id="s-city"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Bio</label><textarea name="bio" class="form-control" rows="3" id="s-bio" placeholder="Conte um pouco sobre você…"></textarea></div>
+          <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+        </form>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>Alterar Senha</h3></div>
+      <div class="card-body">
+        <div id="pwd-alert" class="alert hidden"></div>
+        <form id="pwd-form">
+          <div class="form-group"><label class="form-label">Senha atual</label><input type="password" name="currentPassword" class="form-control" required></div>
+          <div class="form-group"><label class="form-label">Nova senha</label><input type="password" name="newPassword" class="form-control" required minlength="6"></div>
+          <button type="submit" class="btn btn-outline">Alterar Senha</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../public/js/app.js"></script>
+<script>
+if (!Auth.isLoggedIn()) location.href = '/pages/login.html';
+
+function showTab(t) {
+  ['ads','favs','settings'].forEach(id => {
+    document.getElementById(`tab-${id}`).style.display = id === t ? '' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach((el,i) => el.classList.toggle('active', ['ads','favs','settings'][i] === t));
+  if (t === 'favs' && !document.getElementById('favs-grid').hasChildNodes()) loadFavs();
+}
+
+async function loadProfile() {
+  try {
+    const user = await Http.get('/auth/me');
+    document.title = `${user.name} — CellMart`;
+    document.getElementById('user-name').textContent = user.name;
+    document.getElementById('stat-ads').textContent = user.total_sales || 0;
+    document.getElementById('stat-rep').textContent = parseFloat(user.reputation || 0).toFixed(1);
+    document.getElementById('stat-sales').textContent = user.total_sales || 0;
+    if (user.avatar) { document.getElementById('avatar-img').src = `http://localhost:3001${user.avatar}`; document.getElementById('avatar-img').style.display='block'; document.getElementById('avatar-placeholder').style.display='none'; }
+    if (user.verified) document.getElementById('verified-badge').classList.remove('hidden');
+    if (user.premium)  document.getElementById('premium-badge').classList.remove('hidden');
+    if (user.role === 'admin') document.getElementById('admin-badge').classList.remove('hidden');
+    const meta = [user.city && user.state ? `📍 ${user.city}, ${user.state}` : null, `📅 Membro desde ${new Date(user.created_at).toLocaleDateString('pt-BR', {month:'long',year:'numeric'})}`].filter(Boolean);
+    document.getElementById('user-meta').textContent = meta.join(' · ');
+    // Pre-fill settings
+    document.getElementById('s-name').value  = user.name  || '';
+    document.getElementById('s-phone').value = user.phone || '';
+    document.getElementById('s-city').value  = user.city  || '';
+    document.getElementById('s-bio').value   = user.bio   || '';
+  } catch(e) { UI.toast('Erro ao carregar perfil', 'error'); }
+}
+
+async function loadMyAds() {
+  try {
+    const ads = await Http.get('/my-ads');
+    document.getElementById('stat-ads').textContent = ads.length;
+    document.getElementById('my-ads-grid').innerHTML = ads.length
+      ? ads.map(p => `
+        <div class="product-card" style="cursor:default">
+          <div class="product-card-img" onclick="location.href='/pages/product.html?id=${p.id}'" style="cursor:pointer">
+            ${p.primary_image ? `<img src="http://localhost:3001${p.primary_image}" alt="${p.title}" loading="lazy">` : '<div class="no-img">📷</div>'}
+          </div>
+          <div class="product-card-body">
+            <div class="product-card-title">${p.title}</div>
+            <div class="product-card-price">${UI.formatPrice(p.price)}</div>
+            <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+              <span style="font-size:.7rem;padding:2px 8px;border-radius:20px;background:${p.status==='active'?'#D1FAE5':p.status==='sold'?'#DBEAFE':'#FEF3C7'};color:${p.status==='active'?'#065F46':p.status==='sold'?'#1E3A8A':'#92400E'}">${{active:'Ativo',sold:'Vendido',paused:'Pausado',rejected:'Rejeitado',pending:'Pendente'}[p.status]}</span>
+              <span style="font-size:.7rem;color:var(--mid)">👁 ${p.views} · ❤️ ${p.favorites_count}</span>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:10px">
+              <a href="/pages/new-ad.html?edit=${p.id}" class="btn btn-secondary btn-sm" style="flex:1;text-align:center">✏️ Editar</a>
+              <button class="btn btn-danger btn-sm" onclick="deleteAd('${p.id}',this)">🗑</button>
+            </div>
+          </div>
+        </div>`).join('')
+      : '<div class="empty-state" style="grid-column:1/-1"><div class="icon">📋</div><h3>Nenhum anúncio</h3><p>Você ainda não criou anúncios</p><a href="/pages/new-ad.html" class="btn btn-primary" style="margin-top:16px">Criar Anúncio</a></div>';
+  } catch(e) { UI.toast('Erro ao carregar anúncios', 'error'); }
+}
+
+async function loadFavs() {
+  try {
+    const favs = await Http.get('/favorites');
+    document.getElementById('favs-grid').innerHTML = favs.length
+      ? favs.map(p => UI.productCard(p)).join('')
+      : '<div class="empty-state" style="grid-column:1/-1"><div class="icon">❤️</div><h3>Sem favoritos</h3><p>Explore e favorite produtos que gostou</p><a href="/pages/search.html" class="btn btn-primary" style="margin-top:16px">Explorar</a></div>';
+  } catch(e) { UI.toast('Erro ao carregar favoritos', 'error'); }
+}
+
+async function deleteAd(id, btn) {
+  UI.confirm('Tem certeza que quer remover este anúncio?', async () => {
+    try {
+      await Http.delete(`/products/${id}`);
+      UI.toast('Anúncio removido', 'success');
+      btn.closest('.product-card').remove();
+    } catch(e) { UI.toast(e.error || 'Erro', 'error'); }
+  }, 'Remover');
+}
+
+document.getElementById('settings-form').onsubmit = async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const alertEl = document.getElementById('settings-alert');
+  try {
+    await Http.put('/auth/profile', { name: fd.get('name'), phone: fd.get('phone'), city: fd.get('city'), bio: fd.get('bio') });
+    alertEl.className = 'alert alert-success'; alertEl.textContent = '✅ Perfil atualizado!'; alertEl.classList.remove('hidden');
+    loadProfile();
+  } catch(e) { alertEl.className = 'alert alert-error'; alertEl.textContent = e.error || 'Erro'; alertEl.classList.remove('hidden'); }
+};
+
+document.getElementById('pwd-form').onsubmit = async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const alertEl = document.getElementById('pwd-alert');
+  try {
+    await Http.put('/auth/password', { currentPassword: fd.get('currentPassword'), newPassword: fd.get('newPassword') });
+    alertEl.className = 'alert alert-success'; alertEl.textContent = '✅ Senha alterada!'; alertEl.classList.remove('hidden');
+    e.target.reset();
+  } catch(e) { alertEl.className = 'alert alert-error'; alertEl.textContent = e.error || 'Erro'; alertEl.classList.remove('hidden'); }
+};
+
+loadProfile();
+loadMyAds();
+</script>
+</body></html>
