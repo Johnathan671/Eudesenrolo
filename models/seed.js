@@ -46,5 +46,5 @@ async function seed() {
   console.log('\n🎉 Seed concluído! Execute: npm run dev');
   process.exit(0);
 }
+module.exports = { seed };
 
-seed().catch(e => { console.error(e); process.exit(1); });
