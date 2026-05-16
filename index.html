@@ -187,7 +187,8 @@ function heroSearch(e) {
 async function loadHomepage() {
   try {
     // Categories
-    const cats = await Http.get('/api/categories');
+    const catsData = await Http.get('/categories');
+const cats = Array.isArray(catsData) ? catsData : [];
     document.getElementById('categories-grid').innerHTML = cats.slice(0,10).map(c => `
       <a class="cat-card" href="/pages/search.html?category=${c.slug}">
         <div class="cat-icon">${c.icon}</div>
