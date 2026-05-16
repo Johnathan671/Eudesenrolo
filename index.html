@@ -229,7 +229,41 @@ document.getElementById('mobile-logout')?.addEventListener('click', e => {
 // Admin link mobile
 if (Auth.isAdmin()) document.getElementById('mobile-admin')?.classList.remove('hidden');
 
-loadHomepage();
-</script>
-</body>
-</html>
+async function loadHomepage() {
+  try {
+    // Categories
+    const catsData = await Http.get('/categories');
+    const cats = Array.isArray(catsData) ? catsData : [];
+    
+    document.getElementById('categories-grid').innerHTML = cats.slice(0,10).map(c => `
+      <a class="cat-card" href="/pages/search.html?category=${c.slug}">
+        <div class="cat-icon">${c.icon}</div>
+        <div class="cat-name">${c.name}</div>
+        <div class="cat-count">${c.product_count} anúncios</div>
+      </a>`).join('') || '<p style="color:var(--mid)">Nenhuma categoria encontrada.</p>';
+
+    document.getElementById('footer-cats').innerHTML = cats.slice(0,5).map(c =>
+      `<li><a href="/pages/search.html?category=${c.slug}">${c.name}</a></li>`
+    ).join('');
+
+    // Featured ads
+    const featured = await Http.get('/products?featured=1&limit=8&sort=recent');
+    document.getElementById('featured-grid').innerHTML = featured.products?.length
+      ? featured.products.map(p => UI.productCard(p)).join('')
+      : '<p style="color:var(--mid);grid-column:1/-1">Nenhum anúncio em destaque no momento.</p>';
+
+    // Recent ads
+    const recent = await Http.get('/products?limit=8&sort=recent');
+    document.getElementById('recent-grid').innerHTML = recent.products?.length
+      ? recent.products.map(p => UI.productCard(p)).join('')
+      : '<p style="color:var(--mid);grid-column:1/-1">Nenhum anúncio encontrado.</p>';
+
+    // Stats
+    document.getElementById('stat-ads').textContent   = recent.total?.toLocaleString('pt-BR') || '0';
+    document.getElementById('stat-users').textContent = '+1.000';
+
+  } catch(e) {
+    console.error(e);
+    UI.toast('Erro ao carregar página. Verifique se o servidor está rodando.', 'error', 6000);
+  }
+}
