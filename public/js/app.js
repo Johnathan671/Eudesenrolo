@@ -1,6 +1,6 @@
 // public/js/app.js — CellMart Core
 
-const API = 'http://localhost:3001/api';
+const API = 'https://cellmart-production.up.railway.app';
 
 /* ─── Auth State ──────────────────────────────────────────────── */
 const Auth = {

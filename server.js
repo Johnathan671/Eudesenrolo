@@ -9,9 +9,17 @@ const path = require('path');
 const { initDB } = require('./models/database');
 
 const app = express();
+app.set('trust proxy', 1);
+
 
 // ─── Init DB ────────────────────────────────────────────────────────────────
 initDB();
+
+// ─── Seed automático ─────────────────────────────────────────────────────────
+if (process.env.SEED_ON_START === 'true') {
+  const { seed } = require('./models/seed');
+  seed();
+}
 
 // ─── Security ───────────────────────────────────────────────────────────────
 app.use(helmet({
@@ -42,6 +50,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname)));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+app.get('/run-seed', async (req, res) => {
+  const { seed } = require('./models/seed');
+  await seed();
+  res.json({ ok: true });
+});
 // ─── Routes ─────────────────────────────────────────────────────────────────
 app.use('/api/auth',     require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
