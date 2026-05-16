@@ -1,20 +1,20 @@
-// models/seed.js — Popula banco com admin + categorias
+// models/seed.js — Popula banco com admin + categorias (PostgreSQL)
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
-const { db, initDB } = require('./database');
+const { pool, initDB } = require('./database');
 
 async function seed() {
-  initDB();
+  await initDB();
 
   // ─── Admin ──────────────────────────────────────────────────────────────
-  const existing = db.prepare('SELECT id FROM users WHERE email = ?').get('gustavop797@gmail.com');
-  if (!existing) {
+  const existing = await pool.query('SELECT id FROM users WHERE email = $1', ['gustavop797@gmail.com']);
+  if (!existing.rows.length) {
     const hash = await bcrypt.hash('Guga1233', 12);
-    db.prepare(`
-      INSERT INTO users (id, name, email, password, role, verified)
-      VALUES (?, ?, ?, ?, 'admin', 1)
-    `).run(uuidv4(), 'Administrador', 'gustavop797@gmail.com', hash);
+    await pool.query(
+      `INSERT INTO users (id, name, email, password, role, verified) VALUES ($1,$2,$3,$4,'admin',1)`,
+      [uuidv4(), 'Administrador', 'gustavop797@gmail.com', hash]
+    );
     console.log('✅ Admin criado: gustavop797@gmail.com / Guga1233');
   } else {
     console.log('ℹ️  Admin já existe.');
@@ -22,7 +22,7 @@ async function seed() {
 
   // ─── Categories ─────────────────────────────────────────────────────────
   const cats = [
-    { name: 'Celulares e Tablets', slug: 'celulares', icon: '📱', color: '#3b82f6', sort_order: 1 },
+    { name: 'Celulares e Tablets', slug: 'celulares',   icon: '📱', color: '#3b82f6', sort_order: 1 },
     { name: 'Eletrônicos',         slug: 'eletronicos', icon: '💻', color: '#6366f1', sort_order: 2 },
     { name: 'Veículos',            slug: 'veiculos',    icon: '🚗', color: '#10b981', sort_order: 3 },
     { name: 'Imóveis',             slug: 'imoveis',     icon: '🏠', color: '#f59e0b', sort_order: 4 },
@@ -34,17 +34,15 @@ async function seed() {
     { name: 'Outros',              slug: 'outros',      icon: '📦', color: '#64748b', sort_order: 10 },
   ];
 
-  const upsert = db.prepare(`
-    INSERT INTO categories (name, slug, icon, color, sort_order)
-    VALUES (@name, @slug, @icon, @color, @sort_order)
-    ON CONFLICT(slug) DO UPDATE SET name=excluded.name, icon=excluded.icon, color=excluded.color
-  `);
-  const insertMany = db.transaction((items) => items.forEach(c => upsert.run(c)));
-  insertMany(cats);
+  for (const c of cats) {
+    await pool.query(
+      `INSERT INTO categories (name, slug, icon, color, sort_order) VALUES ($1,$2,$3,$4,$5)
+       ON CONFLICT(slug) DO UPDATE SET name=EXCLUDED.name, icon=EXCLUDED.icon, color=EXCLUDED.color`,
+      [c.name, c.slug, c.icon, c.color, c.sort_order]
+    );
+  }
   console.log('✅ Categorias inseridas.');
-
-  console.log('\n🎉 Seed concluído! Execute: npm run dev');
-  
+  console.log('\n🎉 Seed concluído!');
 }
-module.exports = { seed };
 
+module.exports = { seed };
