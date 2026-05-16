@@ -44,7 +44,7 @@ async function seed() {
   console.log('✅ Categorias inseridas.');
 
   console.log('\n🎉 Seed concluído! Execute: npm run dev');
-  process.exit(0);
+  
 }
 module.exports = { seed };
 
