@@ -1,5 +1,5 @@
 // public/js/app.js — CellMart Core
-const API = 'https://cellmart-production.up.railway.app/api';
+const API = 'https://eudesenrolo-production.up.railway.app/api';
 
 
 /* ─── Auth State ──────────────────────────────────────────────── */
