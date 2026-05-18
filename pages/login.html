@@ -23,48 +23,60 @@
 </div>
 <script src="../public/js/app.js"></script>
 <script>
-// Espera o app.js carregar
-function initLogin() {
-    if (typeof Auth === 'undefined' || typeof Http === 'undefined') {
-        setTimeout(initLogin, 100);
+// Login com espera robusta
+async function fazerLogin(email, password) {
+    const errorEl = document.getElementById('login-error');
+    const btn = document.querySelector('button[type="submit"]');
+
+    try {
+        btn.disabled = true;
+        btn.textContent = 'Entrando...';
+
+        const response = await Http.post('/auth/login', { 
+            email, 
+            password 
+        });
+
+        if (response.token) {
+            Auth.login(response.token, response.user);
+            
+            console.log("✅ Token salvo:", response.token.substring(0, 50) + "...");
+            
+            UI.toast(`Bem-vindo, ${response.user.name.split(' ')[0]}!`, 'success');
+
+            // Redirecionamento inteligente
+            const params = new URLSearchParams(location.search);
+            const redirect = params.get('redirect') || '/index.html';
+            location.href = redirect;
+        }
+    } catch (err) {
+        console.error(err);
+        errorEl.textContent = err.error || 'Credenciais inválidas';
+        errorEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Entrar';
+    }
+}
+
+// Inicialização com polling
+function initLoginPage() {
+    if (typeof Auth === 'undefined' || typeof Http === 'undefined' || typeof UI === 'undefined') {
+        setTimeout(initLoginPage, 150);
         return;
     }
 
     const form = document.getElementById('login-form');
-    if (!form) return;
-
-    form.onsubmit = async (e) => {
-        e.preventDefault();
-        
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const errorEl = document.getElementById('login-error');
-
-        try {
-            const btn = form.querySelector('button');
-            btn.disabled = true;
-            btn.textContent = 'Entrando...';
-
-            const { token, user } = await Http.post('/auth/login', { email, password });
-
-            Auth.login(token, user);
-            UI.toast(`Bem-vindo, ${user.name}!`, 'success');
-            
-            // Redireciona para onde queria ir ou para home
-            const urlParams = new URLSearchParams(window.location.search);
-            const redirect = urlParams.get('redirect') || '/index.html';
-            window.location.href = redirect;
-
-        } catch (err) {
-            errorEl.textContent = err.error || 'Credenciais inválidas';
-            errorEl.classList.remove('hidden');
-            btn.disabled = false;
-            btn.textContent = 'Entrar';
-        }
-    };
+    if (form) {
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            if (email && password) fazerLogin(email, password);
+        };
+    }
 }
 
-initLogin();
+initLoginPage();
 </script>
 </body>
 </html>
