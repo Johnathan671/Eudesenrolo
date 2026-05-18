@@ -57,8 +57,9 @@ logout() {
     
     UI.updateNavAuth();
     window.location.href = '/pages/login.html';
-  },
-  
+  }
+};
+
 /* ─── HTTP Client ─────────────────────────────────────────────── */
 const Http = {
   async request(method, url, data = null, multipart = false) {
