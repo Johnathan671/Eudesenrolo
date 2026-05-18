@@ -46,3 +46,12 @@ async function seed() {
 }
 
 module.exports = { seed };
+
+// ─── BUG CORRIGIDO: seed.js não tinha auto-execução ─────────────────────────
+// Quando chamado via `npm run seed` (node models/seed.js), a função seed()
+// nunca era invocada — apenas exportada. Admin nunca era criado standalone.
+if (require.main === module) {
+  seed()
+    .then(() => process.exit(0))
+    .catch(err => { console.error('❌ Erro no seed:', err.message); process.exit(1); });
+}
