@@ -106,7 +106,20 @@
 
 <script src="../public/js/app.js"></script>
 <script>
-if (!Auth.isLoggedIn()) location.href = '/pages/login.html?redirect=/pages/new-ad.html';
+// ==================== CHECK DE LOGIN ====================
+function checkAuth() {
+    if (typeof Auth === 'undefined' || typeof Auth.isLoggedIn !== 'function') {
+        setTimeout(checkAuth, 80);
+        return;
+    }
+
+    if (!Auth.isLoggedIn()) {
+        const currentPath = encodeURIComponent(window.location.pathname + window.location.search);
+        location.href = `/pages/login.html?redirect=${currentPath}`;
+    }
+}
+checkAuth();
+// =======================================================
 
 const editId = new URLSearchParams(location.search).get('edit');
 let selectedFiles = [];
@@ -133,13 +146,15 @@ async function loadForEdit() {
     f.state.value = product.state || '';
     f.neighborhood.value = product.neighborhood || '';
     document.getElementById('cat-select').value = product.category_id;
-    // Show existing images
+
     document.getElementById('preview-grid').innerHTML = images.map(img => `
       <div class="image-preview${img.is_primary?' primary':''}">
         <img src="http://localhost:3001${img.url}">
         <span style="position:absolute;bottom:2px;left:2px;background:rgba(0,0,0,.5);color:white;font-size:.6rem;padding:1px 4px;border-radius:4px">Existente</span>
       </div>`).join('');
-  } catch(e) { UI.toast('Erro ao carregar anúncio', 'error'); }
+  } catch(e) { 
+    UI.toast('Erro ao carregar anúncio', 'error'); 
+  }
 }
 
 // Drag & drop
@@ -192,6 +207,5 @@ document.getElementById('ad-form').onsubmit = async (e) => {
   }
 };
 </script>
-</body></html>
-
-
+</body>
+</html>
