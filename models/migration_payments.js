@@ -39,4 +39,5 @@ async function migrate() {
   }
 }
 
-migrate();
+module.exports = { migrate };
+if (require.main === module) migrate();

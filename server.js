@@ -41,6 +41,11 @@ app.use(express.static(path.join(__dirname)));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ─── Rota manual para rodar seed via HTTP (útil em produção/Railway) ─────────
+app.get('/run-migration', async (req, res) => {
+  const { migrate } = require('./models/migration_payments');
+  await migrate();
+  res.json({ ok: true });
+});
 app.get('/run-seed', async (req, res) => {
   const { seed } = require('./models/seed');
   await seed();
