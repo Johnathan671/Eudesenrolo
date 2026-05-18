@@ -28,18 +28,37 @@ const Auth = {
   isAdmin:    () => Auth.getUser()?.role === 'admin',
 
   login(token, user) {
+    if (!token) {
+        console.error("❌ Tentativa de login sem token");
+        return;
+    }
+
+    console.log("✅ Salvando token:", token.substring(0, 50) + "...");
+
+    // Salva nas duas storages
     localStorage.setItem('cm_token', token);
-    localStorage.setItem('cm_user', JSON.stringify(user));
+    sessionStorage.setItem('cm_token', token);
+
+    if (user) {
+        localStorage.setItem('cm_user', JSON.stringify(user));
+        sessionStorage.setItem('cm_user', JSON.stringify(user));
+    }
+
     UI.updateNavAuth();
-  },
-  logout() {
+    console.log("✅ Login concluído com sucesso");
+},
+
+logout() {
+    console.log("🚪 Fazendo logout...");
     localStorage.removeItem('cm_token');
     localStorage.removeItem('cm_user');
+    sessionStorage.removeItem('cm_token');
+    sessionStorage.removeItem('cm_user');
+    
     UI.updateNavAuth();
-    window.location.href = '/index.html';
+    window.location.href = '/pages/login.html';
   },
-};
-
+  
 /* ─── HTTP Client ─────────────────────────────────────────────── */
 const Http = {
   async request(method, url, data = null, multipart = false) {
