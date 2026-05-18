@@ -42,7 +42,13 @@ const Http = {
     const res = await fetch(API + url, opts);
     const json = await res.json().catch(() => ({}));
     if (!res.ok) {
-      if (res.status === 401) { Auth.logout(); }
+      if (res.status === 401) {
+        // Só faz logout se o token expirou de verdade
+        const url = res.url || '';
+        if (!url.includes('/auth/login') && !url.includes('/auth/register')) {
+          Auth.logout();
+        }
+      }
       throw { status: res.status, ...json };
     }
     return json;
@@ -353,7 +359,7 @@ function openLoginModal() {
   modal.innerHTML = `
     <div class="modal">
       <div class="modal-header">
-        <h3>Entrar na CellMart</h3>
+        <h3>Entrar na Eudesenrolo</h3>
         <button class="modal-close" onclick="document.getElementById('login-modal').remove()">×</button>
       </div>
       <div class="modal-body">
