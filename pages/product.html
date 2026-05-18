@@ -70,8 +70,11 @@
           <h1 id="product-title" style="font-size:1.2rem;margin-bottom:10px;line-height:1.3">Carregando…</h1>
           <div id="product-price" style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:var(--brand);margin-bottom:4px">…</div>
           <p id="negotiable-tag" style="font-size:.82rem;color:var(--mid);margin-bottom:16px;display:none">✅ Preço negociável</p>
+          <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+            <button class="btn btn-primary btn-full btn-lg" id="btn-buy" onclick="comprar()" style="background:var(--brand);font-size:1rem">🛒 Comprar Agora</button>
+          </div>
           <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
-            <button class="btn btn-primary btn-full" id="btn-contact" onclick="openContact()">💬 Entrar em Contato</button>
+            <button class="btn btn-secondary btn-full" id="btn-contact" onclick="openContact()">💬 Entrar em Contato</button>
             <button class="btn btn-outline" id="btn-fav" onclick="handleFav()" style="flex:0 0 auto;padding:10px 14px">♡</button>
           </div>
           <hr style="border:none;border-top:1px solid var(--lighter);margin:16px 0">
@@ -96,6 +99,28 @@
   <div style="margin-top:40px">
     <div class="section-title"><h2>Relacionados</h2></div>
     <div class="grid-4" id="related-grid"></div>
+  </div>
+</div>
+
+<!-- Buy Modal -->
+<div class="modal-overlay hidden" id="buy-modal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header"><h3>🛒 Confirmar Compra</h3><button class="modal-close" onclick="document.getElementById('buy-modal').classList.add('hidden')">×</button></div>
+    <div class="modal-body">
+      <div id="buy-product-info" style="background:var(--lighter);padding:14px;border-radius:var(--radius);margin-bottom:16px"></div>
+      <div style="display:flex;gap:16px;margin-bottom:16px">
+        <div style="flex:1;text-align:center;background:var(--lighter);padding:12px;border-radius:8px">
+          <div style="font-size:.75rem;color:var(--mid)">VALOR TOTAL</div>
+          <div id="buy-total" style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:var(--brand)"></div>
+        </div>
+        <div style="flex:1;text-align:center;background:var(--lighter);padding:12px;border-radius:8px">
+          <div style="font-size:.75rem;color:var(--mid)">TAXA DO SITE (5%)</div>
+          <div id="buy-taxa" style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:var(--mid)"></div>
+        </div>
+      </div>
+      <p style="font-size:.85rem;color:var(--mid);margin-bottom:16px;text-align:center">Após confirmar, você receberá as instruções de pagamento via PIX.</p>
+      <button class="btn btn-primary btn-full btn-lg" onclick="confirmarCompra()">✅ Confirmar e Ver Instruções PIX</button>
+    </div>
   </div>
 </div>
 
@@ -150,11 +175,39 @@ if (window.innerWidth < 768) {
   document.getElementById('product-layout').style.gridTemplateColumns = '1fr';
 }
 
+
+let currentProductData = null;
+
+async function comprar() {
+  if (!Auth.isLoggedIn()) { openLoginModal(); return; }
+  if (!currentProductData) return;
+  const p = currentProductData;
+  const taxa = (p.price * 0.05).toFixed(2);
+  document.getElementById('buy-product-info').innerHTML = `<strong>${p.title}</strong>`;
+  document.getElementById('buy-total').textContent = UI.formatPrice(p.price);
+  document.getElementById('buy-taxa').textContent = UI.formatPrice(parseFloat(taxa));
+  document.getElementById('buy-modal').classList.remove('hidden');
+}
+
+async function confirmarCompra() {
+  if (!currentProductData) return;
+  try {
+    const result = await Http.post('/payments/order', { product_id: currentProductData.id });
+    document.getElementById('buy-modal').classList.add('hidden');
+    // Redireciona para meus pedidos com instruções de PIX
+    UI.toast('Pedido criado! Redirecionando para pagamento...', 'success');
+    setTimeout(() => location.href = '/pages/my-orders.html', 1200);
+  } catch(e) {
+    UI.toast(e.error || 'Erro ao criar pedido', 'error');
+  }
+}
+
 async function loadProduct() {
   try {
     const { product, images, reviews, isFavorited, related } = await Http.get(`/products/${productId}`);
     productData = product;
     document.title = `${product.title} — Eudesenrolo`;
+    currentProductData = product;
 
     // Breadcrumb
     document.getElementById('bread-cat').innerHTML = `<a href="/pages/search.html?category=${product.category_slug}">${product.category_icon} ${product.category_name}</a>`;
