@@ -110,7 +110,7 @@ async function loadProfile() {
     document.getElementById('stat-ads').textContent = user.total_sales || 0;
     document.getElementById('stat-rep').textContent = parseFloat(user.reputation || 0).toFixed(1);
     document.getElementById('stat-sales').textContent = user.total_sales || 0;
-    if (user.avatar) { document.getElementById('avatar-img').src = `http://localhost:3001${user.avatar}`; document.getElementById('avatar-img').style.display='block'; document.getElementById('avatar-placeholder').style.display='none'; }
+    if (user.avatar) { document.getElementById('avatar-img').src = `${API.replace('/api','')}${user.avatar}`; document.getElementById('avatar-img').style.display='block'; document.getElementById('avatar-placeholder').style.display='none'; }
     if (user.verified) document.getElementById('verified-badge').classList.remove('hidden');
     if (user.premium)  document.getElementById('premium-badge').classList.remove('hidden');
     if (user.role === 'admin') document.getElementById('admin-badge').classList.remove('hidden');
@@ -132,7 +132,7 @@ async function loadMyAds() {
       ? ads.map(p => `
         <div class="product-card" style="cursor:default">
           <div class="product-card-img" onclick="location.href='/pages/product.html?id=${p.id}'" style="cursor:pointer">
-            ${p.primary_image ? `<img src="http://localhost:3001${p.primary_image}" alt="${p.title}" loading="lazy">` : '<div class="no-img">📷</div>'}
+            ${p.primary_image ? `<img src="${API.replace('/api','')}${p.primary_image}" alt="${p.title}" loading="lazy">` : '<div class="no-img">📷</div>'}
           </div>
           <div class="product-card-body">
             <div class="product-card-title">${p.title}</div>
