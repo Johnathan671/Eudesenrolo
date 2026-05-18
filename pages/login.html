@@ -23,24 +23,48 @@
 </div>
 <script src="../public/js/app.js"></script>
 <script>
-if (Auth.isLoggedIn()) location.href = '/index.html';
-document.getElementById('login-form').onsubmit = async (e) => {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  const btn = e.target.querySelector('button'); btn.disabled=true; btn.textContent='Entrando…';
-  const errEl = document.getElementById('login-alert');
-  try {
-    const { token, user } = await Http.post('/auth/login', { email: fd.get('email'), password: fd.get('password') });
-    Auth.login(token, user);
-    UI.toast(`Bem-vindo, ${user.name.split(' ')[0]}! 👋`, 'success');
-    const redirect = new URLSearchParams(location.search).get('redirect') || (user.role==='admin' ? '/pages/admin.html' : '/index.html');
-    setTimeout(() => location.href = redirect, 600);
-  } catch(err) {
-    errEl.textContent = err.error || 'Credenciais inválidas'; errEl.classList.remove('hidden');
-    btn.disabled=false; btn.textContent='Entrar';
-  }
-};
+// Espera o app.js carregar
+function initLogin() {
+    if (typeof Auth === 'undefined' || typeof Http === 'undefined') {
+        setTimeout(initLogin, 100);
+        return;
+    }
+
+    const form = document.getElementById('login-form');
+    if (!form) return;
+
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const errorEl = document.getElementById('login-error');
+
+        try {
+            const btn = form.querySelector('button');
+            btn.disabled = true;
+            btn.textContent = 'Entrando...';
+
+            const { token, user } = await Http.post('/auth/login', { email, password });
+
+            Auth.login(token, user);
+            UI.toast(`Bem-vindo, ${user.name}!`, 'success');
+            
+            // Redireciona para onde queria ir ou para home
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirect = urlParams.get('redirect') || '/index.html';
+            window.location.href = redirect;
+
+        } catch (err) {
+            errorEl.textContent = err.error || 'Credenciais inválidas';
+            errorEl.classList.remove('hidden');
+            btn.disabled = false;
+            btn.textContent = 'Entrar';
+        }
+    };
+}
+
+initLogin();
 </script>
-</body></html>
-
-
+</body>
+</html>
