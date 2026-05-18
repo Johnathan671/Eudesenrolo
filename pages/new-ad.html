@@ -106,21 +106,20 @@
 
 <script src="../public/js/app.js"></script>
 <script>
-// ==================== CHECK DE LOGIN ====================
 function checkAuth() {
-    if (typeof Auth === 'undefined' || typeof Auth.isLoggedIn !== 'function') {
-        setTimeout(checkAuth, 80);
-        return;
-    }
 
-    if (!Auth.isLoggedIn()) {
-        const currentPath = encodeURIComponent(window.location.pathname + window.location.search);
-        location.href = `/pages/login.html?redirect=${currentPath}`;
-    }
+    setTimeout(() => {
+        if (typeof Auth === 'undefined' || !Auth.isLoggedIn()) {
+            const currentPath = encodeURIComponent(window.location.pathname + window.location.search);
+            location.href = `/pages/login.html?redirect=${currentPath}`;
+        }
+    }, 300);
 }
-checkAuth();
-// =======================================================
 
+checkAuth();
+</script>
+
+<script>
 const editId = new URLSearchParams(location.search).get('edit');
 let selectedFiles = [];
 
