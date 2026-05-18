@@ -80,13 +80,6 @@ const Http = {
     const res = await fetch(API + url, opts);
     const json = await res.json().catch(() => ({}));
     if (!res.ok) {
-      if (res.status === 401) {
-        // Só faz logout se o token expirou de verdade
-        const url = res.url || '';
-        if (!url.includes('/auth/login') && !url.includes('/auth/register')) {
-          Auth.logout();
-        }
-      }
       throw { status: res.status, ...json };
     }
     return json;
