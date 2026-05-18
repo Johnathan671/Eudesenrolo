@@ -354,18 +354,33 @@ function renderPagination(container, current, total, onChange) {
 
 /* ─── Notification Polling ────────────────────────────────────── */
 async function pollNotifications() {
-  if (!Auth.isLoggedIn()) return;
-  try {
-    const [notif, msgs] = await Promise.all([
-      Http.get('/notifications'),
-      Http.get('/messages/unread/count'),
-    ]);
-    const total = notif.unread + msgs.count;
-    const badge = document.getElementById('notif-badge');
-    const msgBadge = document.getElementById('msg-badge');
-    if (badge)    { badge.textContent    = notif.unread; badge.classList.toggle('hidden', notif.unread === 0); }
-    if (msgBadge) { msgBadge.textContent = msgs.count;   msgBadge.classList.toggle('hidden', msgs.count === 0); }
-  } catch { }
+    if (!Auth.isLoggedIn()) return;
+
+    try {
+        const token = Auth.getToken();
+        if (!token) return;
+
+        const [notif, msgs] = await Promise.all([
+            Http.get('/notifications'),
+            Http.get('/messages/unread/count')
+        ]);
+
+        const total = (notif?.unread || 0) + (msgs?.count || 0);
+        const badge = document.getElementById('notif-badge');
+        const msgBadge = document.getElementById('msg-badge');
+
+        if (badge) {
+            badge.textContent = notif.unread || 0;
+            badge.classList.toggle('hidden', (notif.unread || 0) === 0);
+        }
+        if (msgBadge) {
+            msgBadge.textContent = msgs.count || 0;
+            msgBadge.classList.toggle('hidden', (msgs.count || 0) === 0);
+        }
+    } catch (err) {
+        console.warn("Erro ao buscar notificações:", err);
+        // Não faz logout em caso de erro temporário
+    }
 }
 
 /* ─── Modal: Login ────────────────────────────────────────────── */
@@ -424,17 +439,25 @@ function openLoginModal() {
 
 /* ─── Init on DOMContentLoaded ────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
-  UI.updateNavAuth();
+    UI.updateNavAuth();
 
-  // Hamburger
-  const hamburger = document.querySelector('.hamburger');
-  const mobileNav = document.querySelector('.mobile-nav');
-  if (hamburger && mobileNav) {
-    hamburger.addEventListener('click', () => {
-      hamburger.classList.toggle('open');
-      mobileNav.classList.toggle('open');
-    });
-  }
+    // Espera um pouco para garantir que o Auth está pronto
+    setTimeout(() => {
+        if (Auth.isLoggedIn()) {
+            pollNotifications();
+            setInterval(pollNotifications, 30000);
+        }
+    }, 800);
+
+    // Hamburger
+    const hamburger = document.querySelector('.hamburger');
+    const mobileNav = document.querySelector('.mobile-nav');
+    if (hamburger && mobileNav) {
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('open');
+            mobileNav.classList.toggle('open');
+        });
+    }
 
   // Header search
   const headerSearch = document.getElementById('header-search');
