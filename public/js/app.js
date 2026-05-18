@@ -4,9 +4,27 @@ const API = 'https://eudesenrolo-production.up.railway.app/api';
 
 /* ─── Auth State ──────────────────────────────────────────────── */
 const Auth = {
-  getToken: () => localStorage.getItem('cm_token'),
+  getToken: () => localStorage.getItem('cm_token') || sessionStorage.getItem('cm_token'),
   getUser:  () => { try { return JSON.parse(localStorage.getItem('cm_user')); } catch { return null; } },
-  isLoggedIn: () => !!localStorage.getItem('cm_token'),
+  isLoggedIn() {
+    // Usa a mesma chave que o getToken()
+    const token = localStorage.getItem('cm_token') || sessionStorage.getItem('cm_token');
+    
+    if (!token) return false;
+
+    try {
+        // Verifica expiração se for JWT
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.exp * 1000 < Date.now()) {
+            this.logout();
+            return false;
+        }
+        return true;
+    } catch(e) {
+        // Se não conseguir ler como JWT, considera válido se o token existir
+        return true;
+    }
+},
   isAdmin:    () => Auth.getUser()?.role === 'admin',
 
   login(token, user) {
