@@ -11,20 +11,10 @@ const { initDB } = require('./models/database');
 const app = express();
 app.set('trust proxy', 1);
 
-
-// ─── Init DB ────────────────────────────────────────────────────────────────
-initDB();
-
-// ─── Seed automático ─────────────────────────────────────────────────────────
-if (process.env.SEED_ON_START === 'true') {
-  const { seed } = require('./models/seed');
-  seed();
-}
-
 // ─── Security ───────────────────────────────────────────────────────────────
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
-  contentSecurityPolicy: false, // Handled by frontend
+  contentSecurityPolicy: false,
 }));
 
 app.use(cors({
@@ -50,11 +40,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname)));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// ─── Rota manual para rodar seed via HTTP (útil em produção/Railway) ─────────
 app.get('/run-seed', async (req, res) => {
   const { seed } = require('./models/seed');
   await seed();
   res.json({ ok: true });
 });
+
 // ─── Routes ─────────────────────────────────────────────────────────────────
 app.use('/api/auth',     require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
@@ -66,7 +58,6 @@ app.use('/api',          require('./routes/misc'));
 app.get('/health', (req, res) => res.json({ status: 'ok', version: '2.0.0' }));
 
 // ─── Frontend ────────────────────────────────────────────────────────────────
-app.use(express.static(path.join(__dirname, 'public')));
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -81,12 +72,35 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Erro interno do servidor' });
 });
 
-// ─── Start ──────────────────────────────────────────────────────────────────
+// ─── BUG CORRIGIDO: initDB() sem await causava race condition ────────────────
+// As rotas podiam receber requisições antes do banco estar pronto.
+// Agora o servidor só sobe APÓS o banco estar inicializado e o seed executado.
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`\n🚀 CellMart API rodando em http://localhost:${PORT}`);
-  console.log(`📦 Ambiente: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`\n👉 Para criar admin e categorias: npm run seed\n`);
-});
+
+async function start() {
+  try {
+    // 1. Inicializa tabelas
+    await initDB();
+
+    // 2. Roda seed automático se configurado
+    if (process.env.SEED_ON_START === 'true') {
+      const { seed } = require('./models/seed');
+      await seed();
+    }
+
+    // 3. Só então sobe o servidor HTTP
+    app.listen(PORT, () => {
+      console.log(`\n🚀 CellMart API rodando em http://localhost:${PORT}`);
+      console.log(`📦 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`\n👉 Para criar admin e categorias manualmente: npm run seed\n`);
+    });
+  } catch (err) {
+    console.error('\n❌ Falha ao iniciar o servidor:', err.message);
+    console.error('\n🔧 Verifique se DATABASE_URL está correto no arquivo .env');
+    process.exit(1);
+  }
+}
+
+start();
 
 module.exports = app;
