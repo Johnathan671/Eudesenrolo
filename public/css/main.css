@@ -88,6 +88,11 @@ h3 { font-size: 1.2rem; font-weight: 700; }
 }
 .logo span { color: var(--dark); }
 
+.logo img {
+  height: 56px;
+  width: auto;
+}
+
 /* Search bar */
 .search-bar {
   flex: 1; max-width: 560px; position: relative;
@@ -689,3 +694,48 @@ tbody tr:last-child td { border-bottom: none; }
 .w-full { width: 100%; }
 .lazy { opacity: 0; transition: opacity .4s ease; }
 .lazy.loaded { opacity: 1; }
+/* ---- Tablet (até 1024px) ---- */
+@media (max-width: 1024px) {
+  .header-inner {
+    max-width: 100%;
+    padding: 0 16px;
+    gap: 10px;
+  }
+
+  .search-bar {
+    max-width: 100%;
+  }
+
+  .header-nav a span,
+  .header-nav button span {
+    display: none;
+  }
+}
+
+/* ---- Mobile (até 768px) ---- */
+@media (max-width: 768px) {
+  .header-inner {
+    flex-wrap: wrap;
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .logo {
+    flex: 1;
+  }
+
+  .search-bar {
+    order: 3;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .header-nav {
+    gap: 4px;
+  }
+
+  .btn-post-ad {
+    padding: 6px 10px !important;
+    font-size: .75rem !important;
+  }
+}
